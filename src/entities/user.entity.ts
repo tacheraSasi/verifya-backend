@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm';
 import { Office } from './office.entity';
 import { Attendance } from './attendance.entity';
 
@@ -28,7 +36,7 @@ export class User {
   })
   role: UserRole;
 
-  @ManyToOne(() => Office, (office) => office.users, { nullable: false })
+  @ManyToOne(() => Office, office => office.users, { nullable: false })
   @JoinColumn()
   office: Office;
 
@@ -41,6 +49,6 @@ export class User {
   @Column({ nullable: true })
   verificationToken: string;
 
-  @OneToMany(() => Attendance, (attendance) => attendance.user)
+  @OneToMany(() => Attendance, attendance => attendance.user)
   attendances: Attendance[];
 }

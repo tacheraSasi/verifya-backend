@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { User } from './user.entity';
 import { Office } from './office.entity';
 
@@ -7,11 +14,11 @@ export class Attendance {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User, (user) => user.attendances, { nullable: false })
+  @ManyToOne(() => User, user => user.attendances, { nullable: false })
   @JoinColumn()
   user: User;
 
-  @ManyToOne(() => Office, (office) => office.attendances, { nullable: false })
+  @ManyToOne(() => Office, office => office.attendances, { nullable: false })
   @JoinColumn()
   office: Office;
 

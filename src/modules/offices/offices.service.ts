@@ -1,26 +1,71 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOfficeDto } from './dto/create-office.dto';
 import { UpdateOfficeDto } from './dto/update-office.dto';
+import { EntityManager, Equal } from 'typeorm';
+import { Office } from './entities/office.entity';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class OfficesService {
-  create(createOfficeDto: CreateOfficeDto) {
-    return 'This action adds a new office';
+  constructor(
+    private readonly entityManager: EntityManager,
+    private readonly usersService: UsersService,
+  ) {}
+
+  async create(createOfficeDto: CreateOfficeDto): Promise<Office> {
+    // Create the office
+    const office = this.entityManager.create(Office, {
+      name: createOfficeDto.name,
+      latitude: createOfficeDto.latitude,
+      longitude: createOfficeDto.longitude,
+    });
+
+    // Save the office to get an ID
+    const savedOffice = await this.entityManager.save(office);
+
+    // Create an admin user for the office
+    const adminEmail =
+      createOfficeDto.adminEmail ||
+      `admin_${createOfficeDto.name.toLowerCase().replace(/\s+/g, '_')}@example.com`;
+    const adminUser = await this.usersService.createAdminForOffice(
+      savedOffice,
+      adminEmail,
+    );
+
+    // Update the office with the admin user
+    savedOffice.admin = adminUser;
+    await this.entityManager.save(savedOffice);
+
+    return savedOffice;
   }
 
-  findAll() {
-    return `This action returns all offices`;
+  async findAll(): Promise<Office[]> {
+    return this.entityManager.find(Office);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} office`;
+  async findOne(id: string): Promise<Office> {
+    const office = await this.entityManager.findOneBy(Office, {
+      id: Equal(id),
+    });
+    if (!office) {
+      throw new NotFoundException(`Office with ID ${id} not found`);
+    }
+    return office;
   }
 
-  update(id: number, updateOfficeDto: UpdateOfficeDto) {
-    return `This action updates a #${id} office`;
+  async update(id: string, updateOfficeDto: UpdateOfficeDto): Promise<Office> {
+    const office = await this.findOne(id);
+
+    // Update office properties
+    if (updateOfficeDto.name) office.name = updateOfficeDto.name;
+    if (updateOfficeDto.latitude) office.latitude = updateOfficeDto.latitude;
+    if (updateOfficeDto.longitude) office.longitude = updateOfficeDto.longitude;
+
+    return this.entityManager.save(office);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} office`;
+  async remove(id: string): Promise<void> {
+    const office = await this.findOne(id);
+    await this.entityManager.remove(office);
   }
 }
