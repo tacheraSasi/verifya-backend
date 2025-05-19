@@ -10,6 +10,9 @@ import { LoggerModule } from 'src/lib/logger/logger.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AuthService } from 'src/modules/auth/services/auth.service';
 import { JwtStrategy } from 'src/modules/auth/services/jwt.strategy';
+import { OfficesModule } from './modules/offices/offices.module';
+import { EmployeesModule } from './modules/employees/employees.module';
+import { AttendancesModule } from './modules/attendances/attendances.module';
 
 @Module({
   imports: [
@@ -20,6 +23,9 @@ import { JwtStrategy } from 'src/modules/auth/services/jwt.strategy';
     SeederModule,
     LoggerModule,
     AuthModule,
+    OfficesModule,
+    EmployeesModule,
+    AttendancesModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthService, JwtStrategy],
