@@ -1,36 +1,29 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
+  IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUUID,
   MaxLength,
 } from 'class-validator';
+import { UserRole } from '../entities/user.entity';
 
 export class CreateUserDto {
   @ApiProperty({
-    description: 'Full name of the user.',
-    example: 'Tachera Sasi',
+    description: 'Name of the user.',
+    example: 'John Doe',
     maxLength: 100,
   })
   @IsNotEmpty()
   @IsString()
   @MaxLength(100)
-  fullName: string;
-
-  @ApiProperty({
-    description: 'Phone number of the user.',
-    example: '+1234567890',
-    maxLength: 100,
-  })
-  @IsNotEmpty()
-  @IsString()
-  @MaxLength(100)
-  phoneNumber: string;
+  name: string;
 
   @ApiProperty({
     description: 'Email address of the user.',
-    example: 'tachera@ekilie.com',
+    example: 'user@example.com',
     maxLength: 100,
   })
   @IsNotEmpty()
@@ -40,13 +33,22 @@ export class CreateUserDto {
 
   @ApiProperty({
     description: 'Password for the user account. Will be hashed before saving.',
-    example: 'tachisgreat!',
+    example: 'SafePassword123!',
     maxLength: 255,
   })
   @IsNotEmpty()
   @IsString()
   @MaxLength(255)
   password: string;
+
+  @ApiProperty({
+    description: 'Role of the user (admin or employee).',
+    enum: UserRole,
+    default: UserRole.EMPLOYEE,
+  })
+  @IsOptional()
+  @IsEnum(UserRole)
+  userRole?: UserRole;
 
   @ApiProperty({
     description: 'ID of the role assigned to the user.',
@@ -56,4 +58,12 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   roleId?: string;
+
+  @ApiProperty({
+    description: 'ID of the office the user belongs to.',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @IsNotEmpty()
+  @IsUUID()
+  officeId: string;
 }
