@@ -11,7 +11,12 @@ import {
 import { OfficesService } from './offices.service';
 import { CreateOfficeDto } from './dto/create-office.dto';
 import { UpdateOfficeDto } from './dto/update-office.dto';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Office } from './entities/office.entity';
 import { Roles } from '../auth/decorator/roles.decorator';
 import { UserRole } from '../users/entities/user.entity';
@@ -25,8 +30,8 @@ export class OfficesController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new office' })
-  @ApiResponse({ 
-    status: 201, 
+  @ApiResponse({
+    status: 201,
     description: 'Office successfully created with admin user',
     type: Office,
   })
@@ -39,8 +44,8 @@ export class OfficesController {
 
   @Get()
   @ApiOperation({ summary: 'Get all offices' })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Returns all offices',
     type: [Office],
   })
@@ -50,8 +55,8 @@ export class OfficesController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get an office by ID' })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Returns the office',
     type: Office,
   })
@@ -62,8 +67,8 @@ export class OfficesController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update an office' })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Office successfully updated',
     type: Office,
   })
@@ -71,8 +76,8 @@ export class OfficesController {
   @Roles(UserRole.ADMIN)
   @UseGuards(RolesGuard)
   async update(
-    @Param('id') id: string, 
-    @Body() updateOfficeDto: UpdateOfficeDto
+    @Param('id') id: string,
+    @Body() updateOfficeDto: UpdateOfficeDto,
   ): Promise<Office> {
     return this.officesService.update(id, updateOfficeDto);
   }
