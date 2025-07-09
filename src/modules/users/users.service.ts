@@ -1,10 +1,14 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from 'src/modules/users/dto/create-user.dto';
 import { UpdateUserDto } from 'src/modules/users/dto/update-user.dto';
 import { EntityManager, Equal } from 'typeorm';
 import { LoggerService } from 'src/lib/logger/logger.service';
 import { User, UserRole } from 'src/modules/users/entities/user.entity';
-import { Office } from 'src/entities/office.entity';
+import { Office } from 'src/modules/offices/entities/office.entity';
 import * as crypto from 'crypto';
 
 @Injectable()
@@ -18,7 +22,9 @@ export class UsersService {
     const { officeId, ...userData } = createUserDto;
 
     // Check if office exists
-    const office = await this.entityManager.findOneBy(Office, { id: Equal(officeId) });
+    const office = await this.entityManager.findOneBy(Office, {
+      id: Equal(officeId),
+    });
     if (!office) {
       throw new NotFoundException(`Office with ID ${officeId} not found`);
     }
@@ -26,7 +32,9 @@ export class UsersService {
     // Check if email is already in use
     const existingUser = await this.findByEmail(userData.email);
     if (existingUser) {
-      throw new BadRequestException(`Email ${userData.email} is already in use`);
+      throw new BadRequestException(
+        `Email ${userData.email} is already in use`,
+      );
     }
 
     // Create verification token
@@ -35,7 +43,7 @@ export class UsersService {
     // Create user
     const user = this.entityManager.create(User, {
       ...userData,
-      office,
+      // office,
       verificationToken,
     });
 
@@ -59,7 +67,7 @@ export class UsersService {
     const savedUser = await this.entityManager.save(adminUser);
 
     // Return the user with the plain text password for email notification
-    return { ...savedUser, plainPassword: tempPassword };
+    return { ...savedUser, password: tempPassword };
   }
 
   async findAll() {
@@ -75,7 +83,7 @@ export class UsersService {
   }
 
   async findById(id: number) {
-    return await this.entityManager.findOneBy(User, { id: Equal(id) });
+    return await this.entityManager.findOneBy(User, { id: String(id) });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

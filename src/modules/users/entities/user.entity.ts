@@ -33,6 +33,9 @@ export class User {
   @Column({ length: 255 })
   password: string;
 
+  @Column({ length: 100, nullable: true })
+  phoneNumber: string;
+
   @Column({
     type: 'enum',
     enum: UserRole,

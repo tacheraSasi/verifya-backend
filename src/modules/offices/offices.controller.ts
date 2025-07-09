@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards,
 } from '@nestjs/common';
 import { OfficesService } from './offices.service';
 import { CreateOfficeDto } from './dto/create-office.dto';
@@ -18,9 +17,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Office } from './entities/office.entity';
-import { Roles } from '../auth/decorator/roles.decorator';
-import { UserRole } from '../users/entities/user.entity';
-import { RolesGuard } from '../auth/guards/roles.guard';
 
 @ApiTags('Offices')
 @ApiBearerAuth('JWT')
@@ -36,8 +32,8 @@ export class OfficesController {
     type: Office,
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
-  @Roles(UserRole.ADMIN)
-  @UseGuards(RolesGuard)
+  // @Roles(UserRole.ADMIN)
+  // @UseGuards(RolesGuard)
   async create(@Body() createOfficeDto: CreateOfficeDto): Promise<Office> {
     return this.officesService.create(createOfficeDto);
   }
@@ -73,8 +69,8 @@ export class OfficesController {
     type: Office,
   })
   @ApiResponse({ status: 404, description: 'Office not found' })
-  @Roles(UserRole.ADMIN)
-  @UseGuards(RolesGuard)
+  // @Roles(UserRole.ADMIN)
+  // @UseGuards(RolesGuard)
   async update(
     @Param('id') id: string,
     @Body() updateOfficeDto: UpdateOfficeDto,
@@ -86,8 +82,7 @@ export class OfficesController {
   @ApiOperation({ summary: 'Delete an office' })
   @ApiResponse({ status: 204, description: 'Office successfully deleted' })
   @ApiResponse({ status: 404, description: 'Office not found' })
-  @Roles(UserRole.ADMIN)
-  @UseGuards(RolesGuard)
+  // @Roles(UserRole.ADMIN)
   async remove(@Param('id') id: string): Promise<void> {
     return this.officesService.remove(id);
   }

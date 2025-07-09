@@ -7,7 +7,7 @@ export class Permission extends BasicEntity {
   @Column({ length: 100 })
   name: string;
 
-  @ManyToMany(() => Role, (role) => role.permissions, {
+  @ManyToMany(() => Role, role => role.permissions, {
     cascade: ['insert', 'update'],
   })
   roles: Role[];

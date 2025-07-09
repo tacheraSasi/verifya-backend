@@ -84,20 +84,21 @@ export class SeederService {
     ];
 
     await Promise.all(
-      users.map(async (userData: User) => {
-        const userExists = await this.entityManager.findOneBy(User, [
-          {
-            email: userData.email,
-          },
-          { phoneNumber: userData.phoneNumber },
-        ]);
+      users.map(async userData => {
+        const userExists = await this.entityManager.findOne(User, {
+          where: [
+            { email: userData.email },
+            { phoneNumber: userData.phoneNumber },
+          ],
+        });
 
         if (!userExists) {
           const user = this.entityManager.create(User, userData);
           await this.entityManager.save(user);
         } else {
-          const updatedUser = userExists.update(userData);
-          await this.entityManager.save(updatedUser);
+          await this.entityManager.update(User, userExists.id, {
+            ...userData,
+          });
         }
       }),
     );
