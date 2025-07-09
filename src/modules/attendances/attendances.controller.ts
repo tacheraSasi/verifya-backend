@@ -27,7 +27,7 @@ export class AttendancesController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.attendancesService.findOne(+id);
+    return this.attendancesService.findOne(id);
   }
 
   @Patch(':id')
@@ -35,11 +35,11 @@ export class AttendancesController {
     @Param('id') id: string,
     @Body() updateAttendanceDto: UpdateAttendanceDto,
   ) {
-    return this.attendancesService.update(+id, updateAttendanceDto);
+    return this.attendancesService.update(id, updateAttendanceDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.attendancesService.remove(+id);
+    return this.attendancesService.remove(id);
   }
 }
