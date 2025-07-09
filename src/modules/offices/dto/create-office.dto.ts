@@ -34,4 +34,22 @@ export class CreateOfficeDto {
   @IsOptional()
   @IsEmail()
   adminEmail?: string;
+
+  @ApiProperty({
+    description: 'Name for the office admin account',
+    example: 'John Admin',
+    required: true,
+  })
+  @IsNotEmpty()
+  @IsString()
+  adminName: string;
+
+  @ApiProperty({
+    description: 'Password for the office admin account',
+    example: 'StrongPassword123!',
+    required: true,
+  })
+  @IsNotEmpty()
+  @IsString()
+  adminPassword: string;
 }

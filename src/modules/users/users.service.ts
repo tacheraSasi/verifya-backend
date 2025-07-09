@@ -65,13 +65,18 @@ export class UsersService {
     return this.entityManager.save(user);
   }
 
-  async createAdminForOffice(office: Office, email: string): Promise<{ user: User; tempPassword: string }> {
-    // Generate a temporary password
-    const tempPassword = crypto.randomBytes(8).toString('hex');
+  async createAdminForOffice(
+    office: Office,
+    email: string,
+    name: string,
+    password: string,
+  ): Promise<{ user: User; tempPassword: string }> {
+    // Use provided password
+    const tempPassword = password;
 
     // Create admin user
     const adminUser = this.entityManager.create(User, {
-      name: `Admin ${office.name}`,
+      name,
       email,
       password: tempPassword,
       userRole: UserRole.ADMIN,

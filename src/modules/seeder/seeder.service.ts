@@ -25,12 +25,11 @@ export class SeederService {
 
   async #createRoles() {
     this.logger.log('Creating roles...');
-    const predefinedRoles = [
-      { name: 'Admin' },
-      { name: 'Employee' },
-    ];
+    const predefinedRoles = [{ name: 'Admin' }, { name: 'Employee' }];
     for (const roleData of predefinedRoles) {
-      const exists = await this.entityManager.findOneBy(Role, { name: roleData.name });
+      const exists = await this.entityManager.findOneBy(Role, {
+        name: roleData.name,
+      });
       if (!exists) {
         const role = this.entityManager.create(Role, roleData);
         await this.entityManager.save(role);
@@ -42,7 +41,9 @@ export class SeederService {
     this.logger.log('Creating sample office and admin...');
     // Create office
     const officeName = 'Main HQ';
-    let office = await this.entityManager.findOneBy(Office, { name: officeName });
+    let office = await this.entityManager.findOneBy(Office, {
+      name: officeName,
+    });
     if (!office) {
       office = this.entityManager.create(Office, {
         name: officeName,
@@ -53,7 +54,9 @@ export class SeederService {
     }
     // Create admin user for office
     const adminEmail = 'admin@office.com';
-    let adminUser = await this.entityManager.findOneBy(User, { email: adminEmail });
+    let adminUser = await this.entityManager.findOneBy(User, {
+      email: adminEmail,
+    });
     if (!adminUser) {
       const tempPassword = 'Admin@1234';
       adminUser = this.entityManager.create(User, {
@@ -73,10 +76,14 @@ export class SeederService {
 
   async #createSampleEmployee() {
     this.logger.log('Creating sample employee...');
-    const office = await this.entityManager.findOne(Office, { where: { name: 'Main HQ' } });
+    const office = await this.entityManager.findOne(Office, {
+      where: { name: 'Main HQ' },
+    });
     if (!office) return;
     const employeeEmail = 'employee@office.com';
-    let employee = await this.entityManager.findOneBy(User, { email: employeeEmail });
+    let employee = await this.entityManager.findOneBy(User, {
+      email: employeeEmail,
+    });
     if (!employee) {
       employee = this.entityManager.create(User, {
         name: 'Sample Employee',
