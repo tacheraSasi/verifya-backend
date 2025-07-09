@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany, OneToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  OneToMany,
+  OneToOne,
+  JoinColumn,
+} from 'typeorm';
 import { User } from 'src/modules/users/entities/user.entity';
 import { Attendance } from 'src/entities/attendance.entity';
 
@@ -23,9 +31,9 @@ export class Office {
   @JoinColumn()
   admin: User;
 
-  @OneToMany(() => User, (user) => user.office)
+  @OneToMany(() => User, user => user.office)
   users: User[];
 
-  @OneToMany(() => Attendance, (attendance) => attendance.office)
+  @OneToMany(() => Attendance, attendance => attendance.office)
   attendances: Attendance[];
 }
