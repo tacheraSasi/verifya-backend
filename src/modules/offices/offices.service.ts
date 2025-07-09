@@ -33,7 +33,7 @@ export class OfficesService {
     );
 
     // Update the office with the admin user
-    savedOffice.admin = adminUser;
+    savedOffice.admin = adminUser.user;
     await this.entityManager.save(savedOffice);
 
     return savedOffice;
