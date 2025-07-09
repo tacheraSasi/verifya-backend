@@ -11,8 +11,8 @@ import {
 } from 'typeorm';
 import { Role } from 'src/modules/roles/entities/role.entity';
 import * as crypto from 'crypto';
-import { Office } from 'src/entities/office.entity';
-import { Attendance } from 'src/entities/attendance.entity';
+import { Office } from 'src/modules/offices/entities/office.entity';
+import { Attendance } from 'src/modules/attendances/entities/attendance.entity';
 
 export enum UserRole {
   ADMIN = 'admin',

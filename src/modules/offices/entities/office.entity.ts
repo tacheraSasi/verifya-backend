@@ -8,7 +8,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { User } from 'src/modules/users/entities/user.entity';
-import { Attendance } from 'src/entities/attendance.entity';
+import { Attendance } from 'src/modules/attendances/entities/attendance.entity';
 
 @Entity('offices')
 export class Office {
