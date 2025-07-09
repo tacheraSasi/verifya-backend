@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
-import { User } from 'src/modules/users/entities/user.entity';
+import { User, UserRole } from 'src/modules/users/entities/user.entity';
 import { Role } from 'src/modules/roles/entities/role.entity';
 import { Permission } from 'src/modules/roles/entities/permission.entity';
 import { predefinedPermissions } from 'src/modules/seeder/data/permissions.data';
 import { LoggerService } from 'src/lib/logger/logger.service';
+import { Office } from 'src/modules/offices/entities/office.entity';
 
 @Injectable()
 export class SeederService {
@@ -14,93 +15,79 @@ export class SeederService {
   ) {}
 
   async seed() {
-    await Promise.all([this.#createRoles(), this.#createUsers()]);
+    // Create roles
+    await this.#createRoles();
+    // Create a sample office and admin
+    await this.#createSampleOfficeWithAdmin();
+    // Create a sample employee
+    await this.#createSampleEmployee();
   }
 
   async #createRoles() {
     this.logger.log('Creating roles...');
     const predefinedRoles = [
-      {
-        name: 'Admin',
-        permissions: predefinedPermissions.Admin,
-      },
-      {
-        name: 'Manager',
-        permissions: predefinedPermissions.Manager,
-      },
+      { name: 'Admin' },
+      { name: 'Employee' },
     ];
-
-    await Promise.all(
-      predefinedRoles.map(async roleData => {
-        const roleExists = await this.entityManager.findOneBy(Role, {
-          name: roleData.name,
-        });
-
-        if (!roleExists) {
-          const role = this.entityManager.create(Role, { name: roleData.name });
-          role.permissions = await Promise.all(
-            roleData.permissions.map(async permData => {
-              let permission = await this.entityManager.findOneBy(Permission, {
-                name: permData.name,
-              });
-              if (!permission) {
-                permission = this.entityManager.create(Permission, permData);
-                await this.entityManager.save(permission);
-              }
-              return permission;
-            }),
-          );
-          await this.entityManager.save(role);
-        }
-      }),
-    );
+    for (const roleData of predefinedRoles) {
+      const exists = await this.entityManager.findOneBy(Role, { name: roleData.name });
+      if (!exists) {
+        const role = this.entityManager.create(Role, roleData);
+        await this.entityManager.save(role);
+      }
+    }
   }
 
-  async #createUsers() {
-    this.logger.log('Creating users...');
-    const roles = await this.entityManager.find(Role, {
-      where: [{ name: 'Admin' }, { name: 'Manager' }],
-    });
-    const roleMap = roles.reduce<Record<string, Role>>((map, role) => {
-      map[role.name] = role;
-      return map;
-    }, {});
+  async #createSampleOfficeWithAdmin() {
+    this.logger.log('Creating sample office and admin...');
+    // Create office
+    const officeName = 'Main HQ';
+    let office = await this.entityManager.findOneBy(Office, { name: officeName });
+    if (!office) {
+      office = this.entityManager.create(Office, {
+        name: officeName,
+        latitude: 40.712776,
+        longitude: -74.005974,
+      });
+      office = await this.entityManager.save(office);
+    }
+    // Create admin user for office
+    const adminEmail = 'admin@office.com';
+    let adminUser = await this.entityManager.findOneBy(User, { email: adminEmail });
+    if (!adminUser) {
+      const tempPassword = 'Admin@1234';
+      adminUser = this.entityManager.create(User, {
+        name: 'Office Admin',
+        email: adminEmail,
+        password: tempPassword,
+        userRole: UserRole.ADMIN,
+        office,
+        verificationToken: 'seeded-token',
+        isEmailVerified: true,
+      });
+      await this.entityManager.save(adminUser);
+    }
+    office.admin = adminUser;
+    await this.entityManager.save(office);
+  }
 
-    const users = [
-      {
-        name: 'Admin User',
-        phoneNumber: '1234567890',
-        email: 'admin@ipfsoftwares.com',
-        password: 'admin@ipfsoftwares',
-        role: roleMap['Admin'],
-      },
-      {
-        name: 'Manager User',
-        phoneNumber: '0987654321',
-        email: 'manager@ipfsoftwares.com',
-        password: 'manager@ipfsoftwares',
-        role: roleMap['Manager'],
-      },
-    ];
-
-    await Promise.all(
-      users.map(async userData => {
-        const userExists = await this.entityManager.findOne(User, {
-          where: [
-            { email: userData.email },
-            { phoneNumber: userData.phoneNumber },
-          ],
-        });
-
-        if (!userExists) {
-          const user = this.entityManager.create(User, userData);
-          await this.entityManager.save(user);
-        } else {
-          await this.entityManager.update(User, userExists.id, {
-            ...userData,
-          });
-        }
-      }),
-    );
+  async #createSampleEmployee() {
+    this.logger.log('Creating sample employee...');
+    const office = await this.entityManager.findOne(Office, { where: { name: 'Main HQ' } });
+    if (!office) return;
+    const employeeEmail = 'employee@office.com';
+    let employee = await this.entityManager.findOneBy(User, { email: employeeEmail });
+    if (!employee) {
+      employee = this.entityManager.create(User, {
+        name: 'Sample Employee',
+        email: employeeEmail,
+        password: 'Employee@1234',
+        userRole: UserRole.EMPLOYEE,
+        office,
+        verificationToken: 'seeded-employee-token',
+        isEmailVerified: false,
+      });
+      await this.entityManager.save(employee);
+    }
   }
 }
