@@ -9,6 +9,7 @@ import { EntityManager, Equal } from 'typeorm';
 import { User, UserRole } from 'src/modules/users/entities/user.entity';
 import { Office } from 'src/modules/offices/entities/office.entity';
 import * as crypto from 'crypto';
+import { Employee } from './entities/employee.entity';
 
 @Injectable()
 export class EmployeesService {
@@ -38,6 +39,12 @@ export class EmployeesService {
       verificationToken,
     });
     await this.entityManager.save(user);
+    // Create Employee entity
+    const employee = this.entityManager.create(Employee, {
+      user,
+      office,
+    });
+    await this.entityManager.save(employee);
     // Mock sending email
     // In production, integrate with an email service
     const verificationLink = `https://your-app.com/verify?token=${verificationToken}`;
