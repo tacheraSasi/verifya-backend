@@ -106,6 +106,14 @@ export class UsersService {
     return await this.entityManager.findOneBy(User, { id });
   }
 
+  async findByVerificationToken(token: string): Promise<User | null> {
+    return this.entityManager.findOne(User, { where: { verificationToken: token } });
+  }
+
+  async save(user: User): Promise<User> {
+    return this.entityManager.save(user);
+  }
+
   update(id: string, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }

@@ -41,4 +41,13 @@ export class AuthController {
   async register(@Body() registerDto: RegisterDto): Promise<User> {
     return this.authService.register(registerDto);
   }
+
+  @Public()
+  @Post('verify-email')
+  @ApiOperation({ summary: 'Verify user email with token' })
+  @ApiResponse({ status: 200, description: 'Email verified successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired token' })
+  async verifyEmail(@Body('token') token: string) {
+    return this.authService.verifyEmail(token);
+  }
 }

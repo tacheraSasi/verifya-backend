@@ -30,6 +30,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    if (!user.isEmailVerified) {
+      throw new UnauthorizedException('Email not verified');
+    }
+
     const payload = { email: user.email, sub: user.id, role: user.userRole };
     return {
       access_token: this.jwtService.sign(payload),
@@ -45,5 +49,17 @@ export class AuthService {
   @Public()
   async register(registerDto: RegisterDto): Promise<User> {
     return this.usersService.create(registerDto);
+  }
+
+  @Public()
+  async verifyEmail(token: string): Promise<{ message: string }> {
+    const user = await this.usersService.findByVerificationToken(token);
+    if (!user) {
+      throw new UnauthorizedException('Invalid or expired verification token');
+    }
+    user.isEmailVerified = true;
+    user.verificationToken = '';
+    await this.usersService.save(user);
+    return { message: 'Email verified successfully' };
   }
 }

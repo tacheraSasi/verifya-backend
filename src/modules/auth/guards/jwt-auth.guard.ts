@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from 'src/modules/auth/decorator/public.decorator';
+import { ROLES_KEY } from '../decorator/auth-user.decorator';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -30,5 +31,22 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     return result;
+  }
+}
+
+@Injectable()
+export class RolesGuard {
+  constructor(private reflector: Reflector) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (!requiredRoles) {
+      return true;
+    }
+    const { user } = context.switchToHttp().getRequest();
+    return requiredRoles.includes(user?.role);
   }
 }
