@@ -24,7 +24,8 @@ export class OfficesService {
     const savedOffice = await this.entityManager.save(office);
 
     // Create an admin user for the office using provided name, email, and password
-    const adminEmail = createOfficeDto.adminEmail ||
+    const adminEmail =
+      createOfficeDto.adminEmail ||
       `admin_${createOfficeDto.name.toLowerCase().replace(/\s+/g, '_')}@example.com`;
     const adminName = createOfficeDto.adminName;
     const adminPassword = createOfficeDto.adminPassword;
@@ -32,7 +33,7 @@ export class OfficesService {
       savedOffice,
       adminEmail,
       adminName,
-      adminPassword
+      adminPassword,
     );
 
     // Update the office with the admin user
