@@ -1,1 +1,4 @@
-export class CreateSmDto {}
+export class CreateSmDto {
+  phoneNumber: string;
+  message: string;
+}
