@@ -45,22 +45,22 @@ export class ExcelInterceptor implements NestInterceptor {
         );
       }
 
-      const rows = [];
-      let headers = [];
+      const rows: Record<string, string>[] = [];
+      let headers: string[] = [];
 
       console.debug('Processing worksheet:', worksheet.name);
 
       // Process rows
-      worksheet.eachRow((row, rowNumber) => {
+      worksheet.eachRow((row: ExcelJS.Row, rowNumber: number) => {
         if (rowNumber === 1) {
           // Get headers from first row
-          row.eachCell((cell, colNumber) => {
-            headers[colNumber - 1] = cell.value?.toString().trim();
+          row.eachCell((cell: ExcelJS.Cell, colNumber: number) => {
+            headers[colNumber - 1] = cell.value?.toString().trim() || '';
           });
         } else {
           // Process data rows
-          const rowData = {};
-          row.eachCell((cell, colNumber) => {
+          const rowData: Record<string, string> = {};
+          row.eachCell((cell: ExcelJS.Cell, colNumber: number) => {
             const header = headers[colNumber - 1];
             if (header) {
               // Handle different cell value types
@@ -81,7 +81,7 @@ export class ExcelInterceptor implements NestInterceptor {
                   'text' in cell.value
                 ) {
                   // Handle rich text
-                  cellValue = cell.value.text;
+                  cellValue = (cell.value as any).text;
                 } else if (cell.value instanceof Date) {
                   // Handle dates
                   cellValue = cell.value.toISOString();
@@ -111,6 +111,7 @@ export class ExcelInterceptor implements NestInterceptor {
       return next.handle();
     } catch (error) {
       this.logger.error('Error processing Excel file:', error);
+      throw new BadRequestException('Error processing Excel file');
     }
   }
 }

@@ -30,10 +30,13 @@ async function bootstrap() {
       transformOptions: { enableImplicitConversion: true },
       disableErrorMessages: false,
       exceptionFactory: errors => {
-        const formattedErrors = errors.reduce((acc, error) => {
-          acc[error.property] = Object.values(error.constraints || {});
-          return acc;
-        }, {});
+        const formattedErrors = errors.reduce(
+          (acc: { [key: string]: any }, error) => {
+            acc[error.property] = Object.values(error.constraints || {});
+            return acc;
+          },
+          {} as { [key: string]: any },
+        );
         return new BadRequestException({
           message: 'Validation failed',
           errors: formattedErrors,
