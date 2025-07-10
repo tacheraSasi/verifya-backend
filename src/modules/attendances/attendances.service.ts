@@ -9,7 +9,7 @@ import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import { Attendance } from './entities/attendance.entity';
 import { User } from 'src/modules/users/entities/user.entity';
 import { Office } from 'src/modules/offices/entities/office.entity';
-import { calculateDistance, isWithinDistance } from 'src/utils/haversine.util';
+import { isWithinDistance } from 'src/utils/haversine.util';
 
 @Injectable()
 export class AttendancesService {
