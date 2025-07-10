@@ -13,6 +13,7 @@ import { JwtStrategy } from 'src/modules/auth/services/jwt.strategy';
 import { OfficesModule } from './modules/offices/offices.module';
 import { EmployeesModule } from './modules/employees/employees.module';
 import { AttendancesModule } from './modules/attendances/attendances.module';
+import { SmsModule } from './modules/sms/sms.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { AttendancesModule } from './modules/attendances/attendances.module';
     OfficesModule,
     EmployeesModule,
     AttendancesModule,
+    SmsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthService, JwtStrategy],
