@@ -9,6 +9,7 @@ import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import { Attendance } from './entities/attendance.entity';
 import { User } from 'src/modules/users/entities/user.entity';
 import { Office } from 'src/modules/offices/entities/office.entity';
+import { calculateDistance, isWithinDistance } from 'src/utils/haversine.util';
 
 @Injectable()
 export class AttendancesService {
@@ -25,20 +26,9 @@ export class AttendancesService {
     });
     if (!office) throw new NotFoundException('Office not found');
 
-    // Calculate distance (Haversine formula)
-    const toRad = (value: number) => (value * Math.PI) / 180;
-    const R = 6371000; // meters
-    const dLat = toRad(latitude - Number(office.latitude));
-    const dLon = toRad(longitude - Number(office.longitude));
-    const lat1 = toRad(Number(office.latitude));
-    const lat2 = toRad(latitude);
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c;
-
-    if (distance > 100) {
+    if (
+      !isWithinDistance(latitude, longitude, office.latitude, office.longitude)
+    ) {
       throw new BadRequestException(
         'You are not within the allowed range to mark attendance.',
       );
