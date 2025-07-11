@@ -3,7 +3,6 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import { CreateSmDto } from './dto/create-sm.dto';
-import { UpdateSmDto } from './dto/update-sm.dto';
 
 interface SendSmsDto {
   phoneNumber: string;
@@ -43,24 +42,13 @@ export class SmsService {
     }
   }
 
-  async create(createSmDto: CreateSmDto & { phoneNumber: string; message: string }) {
-    await this.sendSMS({ phoneNumber: createSmDto.phoneNumber, message: createSmDto.message });
+  async create(
+    createSmDto: CreateSmDto & { phoneNumber: string; message: string },
+  ) {
+    await this.sendSMS({
+      phoneNumber: createSmDto.phoneNumber,
+      message: createSmDto.message,
+    });
     return { message: 'SMS sent successfully' };
-  }
-
-  findAll() {
-    return `This action returns all sms`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} sm`;
-  }
-
-  update(id: number, updateSmDto: UpdateSmDto) {
-    return `This action updates a #${id} sm`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} sm`;
   }
 }
