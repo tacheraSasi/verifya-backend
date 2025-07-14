@@ -13,9 +13,15 @@ export class NotificationsController {
 
   @Post('email')
   async sendEmail(
-    @Body() body: { to: string; subject: string; message: string; from?: string },
+    @Body()
+    body: {
+      to: string;
+      subject: string;
+      message: string;
+      from?: string;
+    },
   ) {
     await this.notificationsService.sendEmail(body);
     return { message: 'Email sent successfully' };
   }
-} 
+}
