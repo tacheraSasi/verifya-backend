@@ -26,7 +26,7 @@ export class OfficesService {
     // Create an admin user for the office using provided name, email, and password
     const adminEmail =
       createOfficeDto.adminEmail ||
-      `admin_${createOfficeDto.name.toLowerCase().replace(/\s+/g, '_')}@example.com`;
+      `admin_${createOfficeDto.name.toLowerCase().replace(/\s+/g, '_')}@ekilie.com`;
     const adminName = createOfficeDto.adminName;
     const adminPassword = createOfficeDto.adminPassword;
     const adminUser = await this.usersService.createAdminForOffice(
