@@ -1,4 +1,5 @@
-import { Injectable, HttpService } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 
 interface SendSmsDto {
@@ -25,7 +26,7 @@ export class NotificationsService {
       recipients: [{ number: Number(phoneNumber) }],
     };
     try {
-      const response = await firstValueFrom(
+      const response: any = await firstValueFrom(
         this.httpService.post(
           'https://api.notify.africa/v2/send-sms',
           payload,
@@ -53,7 +54,7 @@ export class NotificationsService {
       headers: from ? `From: ${from}` : undefined,
     };
     try {
-      const response = await firstValueFrom(
+      const response: any = await firstValueFrom(
         this.httpService.post(
           'https://relay.ekilie.com/api/index.php',
           payload,
