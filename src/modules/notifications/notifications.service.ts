@@ -70,4 +70,4 @@ export class NotificationsService {
       console.error(`Failed to send email to ${to}:`, error.message);
     }
   }
-} 
+}
