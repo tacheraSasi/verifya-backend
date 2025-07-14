@@ -14,6 +14,7 @@ import { OfficesModule } from './modules/offices/offices.module';
 import { EmployeesModule } from './modules/employees/employees.module';
 import { AttendancesModule } from './modules/attendances/attendances.module';
 import { SmsModule } from './modules/sms/sms.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { SmsModule } from './modules/sms/sms.module';
     EmployeesModule,
     AttendancesModule,
     SmsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthService, JwtStrategy],

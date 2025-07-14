@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
-import { AxiosResponse } from 'axios';
 import { CreateSmDto } from './dto/create-sm.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 interface SendSmsDto {
   phoneNumber: string;
@@ -11,35 +10,13 @@ interface SendSmsDto {
 
 @Injectable()
 export class SmsService {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   private async sendSMS({ phoneNumber, message }: SendSmsDto): Promise<void> {
-    const payload = {
-      sender_id: 17,
-      schedule: 'none',
-      sms: message,
-      recipients: [{ number: Number(phoneNumber) }],
-    };
-
-    try {
-      const response: AxiosResponse = await firstValueFrom(
-        this.httpService.post(
-          'https://api.notify.africa/v2/send-sms',
-          payload,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization:
-                'Bearer 148|aALck45bqeeFCxAH2OLJneyCiqq4Bj7NFJS7n9ML5d6e6d0c',
-            },
-          },
-        ),
-      );
-
-      console.log(`Notify Africa response [${phoneNumber}]:`, response.data);
-    } catch (error) {
-      console.error(`Failed to send SMS to ${phoneNumber}:`, error.message);
-    }
+    await this.notificationsService.sendSMS({ phoneNumber, message });
   }
 
   async create(
