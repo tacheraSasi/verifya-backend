@@ -18,19 +18,17 @@ export class CreateOfficeDto {
 
   @ApiProperty({
     description: 'Latitude of the office location',
-    example: 40.7128,
+    example: "40.7128",
   })
-  @IsNotEmpty()
-  @IsNumber()
-  latitude: number;
+  @IsString()
+  latitude: string;
 
   @ApiProperty({
     description: 'Longitude of the office location',
-    example: -74.006,
+    example: "-74.006",
   })
-  @IsNotEmpty()
-  @IsNumber()
-  longitude: number;
+  @IsString()
+  longitude: string;
 
   @ApiProperty({
     description: 'Email for the office admin account',
