@@ -97,8 +97,8 @@ export class EmployeesService {
     await this.entityManager.save(user);
     return { message: 'Account verified. You can now log in.' };
   }
-  
-  private getVerifcationToken(): string{
-    return String(crypto.randomBytes(32).toString('hex'))
+
+  private getVerifcationToken(): string {
+    return String(crypto.randomBytes(32).toString('hex'));
   }
 }
