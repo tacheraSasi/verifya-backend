@@ -10,10 +10,14 @@ import { User, UserRole } from 'src/modules/users/entities/user.entity';
 import { Office } from 'src/modules/offices/entities/office.entity';
 import * as crypto from 'crypto';
 import { Employee } from './entities/employee.entity';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class EmployeesService {
-  constructor(private readonly entityManager: EntityManager) {}
+  constructor(
+    private readonly entityManager: EntityManager,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   async create(createEmployeeDto: CreateEmployeeDto) {
     const { name, email, officeId } = createEmployeeDto;
@@ -48,7 +52,11 @@ export class EmployeesService {
     // TODO:Mock sending email
     // TODO:integrate with an email service
     const verificationLink = `https://ekilie.com/verify?token=${verificationToken}`;
-    // sendEmail(email, 'Verify your account', `Click here: ${verificationLink}`)
+    await this.notificationsService.sendEmail({
+      to: email,
+      subject: 'Verify your account',
+      message: `Click here to verify your account: ${verificationLink}`,
+    });
     return {
       message: 'Employee invited. Verification email sent.',
       verificationLink,
