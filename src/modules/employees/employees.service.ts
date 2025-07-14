@@ -28,7 +28,7 @@ export class EmployeesService {
     });
     if (existingUser) throw new BadRequestException('Email already in use');
     // Create verification token
-    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationToken = this.getVerifcationToken();
     // Create user with no password yet
     const user = this.entityManager.create(User, {
       name,
@@ -88,5 +88,9 @@ export class EmployeesService {
     user.verificationToken = '';
     await this.entityManager.save(user);
     return { message: 'Account verified. You can now log in.' };
+  }
+  
+  private getVerifcationToken(): string{
+    return String(crypto.randomBytes(32).toString('hex'))
   }
 }
