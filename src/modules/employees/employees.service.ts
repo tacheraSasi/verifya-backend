@@ -45,9 +45,9 @@ export class EmployeesService {
       office,
     });
     await this.entityManager.save(employee);
-    // Mock sending email
-    // In production, integrate with an email service
-    const verificationLink = `https://your-app.com/verify?token=${verificationToken}`;
+    // TODO:Mock sending email
+    // TODO:integrate with an email service
+    const verificationLink = `https://ekilie.com/verify?token=${verificationToken}`;
     // sendEmail(email, 'Verify your account', `Click here: ${verificationLink}`)
     return {
       message: 'Employee invited. Verification email sent.',
