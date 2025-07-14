@@ -18,10 +18,10 @@ export class Office {
   @Column()
   name: string;
 
-  @Column('decimal', { precision: 10, scale: 7 })
+  @Column('decimal', { precision: 10, scale: 7, nullable:true })
   latitude: number;
 
-  @Column('decimal', { precision: 10, scale: 7 })
+  @Column('decimal', { precision: 10, scale: 7, nullable:true})
   longitude: number;
 
   @CreateDateColumn()
