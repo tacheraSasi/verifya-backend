@@ -9,13 +9,13 @@ export abstract class BasicEntity {
   id: number;
 
   @CreateDateColumn({
-    type: 'timestamptz',
+    type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
 
   @UpdateDateColumn({
-    type: 'timestamptz',
+    type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
