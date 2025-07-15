@@ -31,4 +31,4 @@ export class RefreshToken {
 
   @Column()
   userId: string;
-} 
+}
