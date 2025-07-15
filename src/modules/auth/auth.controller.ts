@@ -26,7 +26,17 @@ export class AuthController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
+    const result = await this.authService.login(loginDto);
+    // Issue refresh token
+    const user = await this.authService.validateUser(
+      loginDto.email,
+      loginDto.password,
+    );
+    const refreshToken = await this.authService.createRefreshToken(user);
+    return {
+      ...result,
+      refresh_token: refreshToken.token,
+    };
   }
 
   @Public()
@@ -49,5 +59,11 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Invalid or expired token' })
   async verifyEmail(@Body('token') token: string) {
     return this.authService.verifyEmail(token);
+  }
+
+  @Public()
+  @Post('refresh-token')
+  async refreshToken(@Body('refresh_token') refreshToken: string) {
+    return this.authService.refreshAccessToken(refreshToken);
   }
 }

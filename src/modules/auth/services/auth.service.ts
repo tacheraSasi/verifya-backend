@@ -5,12 +5,18 @@ import { RegisterDto } from '../dto/register.dto';
 import { Public } from 'src/modules/auth/decorator/public.decorator';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/modules/users/entities/user.entity';
+import { RefreshToken } from '../entities/refresh-token.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    @InjectRepository(RefreshToken)
+    private refreshTokenRepository: Repository<RefreshToken>,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
@@ -61,5 +67,49 @@ export class AuthService {
     user.verificationToken = '';
     await this.usersService.save(user);
     return { message: 'Email verified successfully' };
+  }
+
+  async createRefreshToken(user: User): Promise<RefreshToken> {
+    const token = uuidv4() + '.' + uuidv4();
+    const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7); // 7 days
+    const refreshToken = this.refreshTokenRepository.create({
+      token,
+      expiresAt,
+      user,
+      userId: user.id,
+    });
+    return this.refreshTokenRepository.save(refreshToken);
+  }
+
+  async validateRefreshToken(token: string): Promise<RefreshToken | null> {
+    const refreshToken = await this.refreshTokenRepository.findOne({
+      where: { token },
+      relations: ['user'],
+    });
+    if (!refreshToken || refreshToken.revoked || refreshToken.expiresAt < new Date()) {
+      return null;
+    }
+    return refreshToken;
+  }
+
+  async revokeRefreshToken(token: string): Promise<void> {
+    await this.refreshTokenRepository.update({ token }, { revoked: true });
+  }
+
+  async refreshAccessToken(token: string): Promise<{ access_token: string; refresh_token: string }> {
+    const refreshToken = await this.validateRefreshToken(token);
+    if (!refreshToken) {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
+    // Optionally revoke the old refresh token (rotate)
+    await this.revokeRefreshToken(token);
+    const user = refreshToken.user;
+    const payload = { email: user.email, sub: user.id, role: user.userRole };
+    const access_token = this.jwtService.sign(payload);
+    const newRefreshToken = await this.createRefreshToken(user);
+    return {
+      access_token,
+      refresh_token: newRefreshToken.token,
+    };
   }
 }

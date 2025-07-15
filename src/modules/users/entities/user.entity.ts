@@ -14,6 +14,7 @@ import * as crypto from 'crypto';
 import { Office } from 'src/modules/offices/entities/office.entity';
 import { Attendance } from 'src/modules/attendances/entities/attendance.entity';
 import { Otp } from 'src/modules/auth/entities/otp.entity';
+import { RefreshToken } from 'src/modules/auth/entities/refresh-token.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -68,6 +69,9 @@ export class User {
 
   @OneToMany(() => Otp, otp => otp.user)
   otps: Otp[];
+
+  @OneToMany(() => RefreshToken, refreshToken => refreshToken.user)
+  refreshTokens: RefreshToken[];
 
   @BeforeInsert()
   @BeforeUpdate()
