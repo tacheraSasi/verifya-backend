@@ -20,6 +20,7 @@ import {
 import { Office } from './entities/office.entity';
 import { Roles } from '../auth/decorator/auth-user.decorator';
 import { RolesGuard } from '../auth/guards/jwt-auth.guard';
+import { Public } from 'src/modules/auth/decorator/public.decorator';
 
 @ApiTags('Offices')
 @ApiBearerAuth('JWT')
@@ -28,6 +29,7 @@ export class OfficesController {
   constructor(private readonly officesService: OfficesService) {}
 
   @Post()
+  @Public()
   @ApiOperation({ summary: 'Create a new office' })
   @ApiResponse({
     status: 201,
@@ -35,8 +37,6 @@ export class OfficesController {
     type: Office,
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
-  @Roles('admin')
-  @UseGuards(RolesGuard)
   async create(@Body() createOfficeDto: CreateOfficeDto): Promise<Office> {
     return this.officesService.create(createOfficeDto);
   }

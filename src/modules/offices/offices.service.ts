@@ -32,7 +32,7 @@ export class OfficesService {
     const adminUser = await this.usersService.createAdminForOffice(
       savedOffice,
       adminEmail,
-      adminName,
+      adminName ?? `${createOfficeDto.name} Admin`,
       adminPassword,
     );
 

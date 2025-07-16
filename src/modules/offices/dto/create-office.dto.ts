@@ -44,11 +44,11 @@ export class CreateOfficeDto {
   @ApiProperty({
     description: 'Name for the office admin account',
     example: 'John Admin',
-    required: true,
+    required: false,
   })
-  @IsNotEmpty()
   @IsString()
-  adminName: string;
+  @IsOptional()
+  adminName?: string;
 
   @ApiProperty({
     description: 'Password for the office admin account',
