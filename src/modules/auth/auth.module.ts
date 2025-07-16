@@ -8,6 +8,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from 'src/modules/auth/services/jwt.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { RefreshToken } from './entities/refresh-token.entity';
 
 @Module({
   imports: [
@@ -18,6 +20,7 @@ import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
       secret: configuration().jwtSecret,
       signOptions: { expiresIn: '60m' },
     }),
+    TypeOrmModule.forFeature([RefreshToken]),
   ],
   providers: [
     AuthService,
