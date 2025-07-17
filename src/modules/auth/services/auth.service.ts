@@ -67,9 +67,9 @@ export class AuthService {
   }
 
   @Public()
-  async register(registerDto: RegisterDto): Promise<User> {
+  async register(registerDto: RegisterDto) {
     // Create office and admin user
-    const office = await this.officesService.create({
+    await this.officesService.create({
       name: registerDto.officeName,
       phoneNumber: registerDto.phoneNumber,
       adminEmail: registerDto.adminEmail,
@@ -80,7 +80,7 @@ export class AuthService {
       phoneNumber: registerDto.phoneNumber,
       message: `Welcome to ekiliSync ${registerDto.officeName}! Your office and admin account have been created.`,
     });
-    return office.admin;
+    return { message: 'Office created successfully' };
   }
 
   @Public()

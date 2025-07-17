@@ -35,6 +35,7 @@ export class OfficesService {
       adminEmail,
       adminName ?? `${createOfficeDto.name} Admin`,
       adminPassword,
+      createOfficeDto.phoneNumber,
     );
 
     // Update the office with the admin user

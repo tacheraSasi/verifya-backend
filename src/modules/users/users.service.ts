@@ -70,6 +70,7 @@ export class UsersService {
     email: string,
     name: string,
     password: string,
+    phoneNumber: string,
   ): Promise<{ user: User; tempPassword: string }> {
     // Use provided password
     const tempPassword = password;
@@ -81,6 +82,7 @@ export class UsersService {
       password: tempPassword,
       userRole: UserRole.ADMIN,
       office,
+      phoneNumber,
       verificationToken: crypto.randomBytes(32).toString('hex'),
     });
 
@@ -107,7 +109,9 @@ export class UsersService {
   }
 
   async findByVerificationToken(token: string): Promise<User | null> {
-    return this.entityManager.findOne(User, { where: { verificationToken: token } });
+    return this.entityManager.findOne(User, {
+      where: { verificationToken: token },
+    });
   }
 
   async save(user: User): Promise<User> {
