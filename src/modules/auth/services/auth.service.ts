@@ -22,13 +22,14 @@ export class AuthService {
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
     if (user && (await user.verifyPassword(pass))) {
-      const { password, ...result } = user;
-      return result;
+      // const { password, ...result } = user;
+      // return result;
+      // Instead, just return user (password is not exposed in login payload)
+      return user;
     }
     return null;
   }
 
-  @Public()
   async login(loginDto: LoginDto) {
     const user = await this.validateUser(loginDto.email, loginDto.password);
 
@@ -48,6 +49,15 @@ export class AuthService {
         name: user.name,
         email: user.email,
         role: user.userRole,
+        office: user.office
+          ? {
+              id: user.office.id,
+              name: user.office.name,
+              latitude: user.office.latitude,
+              longitude: user.office.longitude,
+              createdAt: user.office.createdAt,
+            }
+          : null,
       },
     };
   }
@@ -86,7 +96,11 @@ export class AuthService {
       where: { token },
       relations: ['user'],
     });
-    if (!refreshToken || refreshToken.revoked || refreshToken.expiresAt < new Date()) {
+    if (
+      !refreshToken ||
+      refreshToken.revoked ||
+      refreshToken.expiresAt < new Date()
+    ) {
       return null;
     }
     return refreshToken;
@@ -96,7 +110,9 @@ export class AuthService {
     await this.refreshTokenRepository.update({ token }, { revoked: true });
   }
 
-  async refreshAccessToken(token: string): Promise<{ access_token: string; refresh_token: string }> {
+  async refreshAccessToken(
+    token: string,
+  ): Promise<{ access_token: string; refresh_token: string }> {
     const refreshToken = await this.validateRefreshToken(token);
     if (!refreshToken) {
       throw new UnauthorizedException('Invalid or expired refresh token');
