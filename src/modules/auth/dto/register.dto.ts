@@ -51,4 +51,9 @@ export class RegisterDto {
   @IsNotEmpty()
   @IsString()
   adminPassword: string;
+
+  @ApiProperty({ description: 'Phone number for the office admin', example: '+1234567890' })
+  @IsNotEmpty()
+  @IsString()
+  phoneNumber: string;
 }

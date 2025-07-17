@@ -27,6 +27,8 @@ export class AttendancesService {
     if (!office) throw new NotFoundException('Office not found');
 
     if (
+      office.latitude == null ||
+      office.longitude == null ||
       !isWithinDistance(latitude, longitude, office.latitude, office.longitude)
     ) {
       throw new BadRequestException(

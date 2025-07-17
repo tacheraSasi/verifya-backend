@@ -16,8 +16,9 @@ export class OfficesService {
     // Create the office
     const office = this.entityManager.create(Office, {
       name: createOfficeDto.name,
-      latitude: createOfficeDto.latitude,
-      longitude: createOfficeDto.longitude,
+      latitude: createOfficeDto.latitude ?? null,
+      longitude: createOfficeDto.longitude ?? null,
+      phoneNumber: createOfficeDto.phoneNumber,
     });
 
     // Save the office to get an ID

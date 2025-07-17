@@ -74,6 +74,7 @@ export class AuthService {
       adminEmail: registerDto.adminEmail,
       adminName: registerDto.adminName,
       adminPassword: registerDto.adminPassword,
+      phoneNumber: registerDto.phoneNumber,
     });
     return office.admin;
   }
