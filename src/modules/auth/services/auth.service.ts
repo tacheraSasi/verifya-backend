@@ -9,6 +9,7 @@ import { RefreshToken } from '../entities/refresh-token.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import { OfficesService } from 'src/modules/offices/offices.service';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +18,7 @@ export class AuthService {
     private jwtService: JwtService,
     @InjectRepository(RefreshToken)
     private refreshTokenRepository: Repository<RefreshToken>,
+    private officesService: OfficesService,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
@@ -64,7 +66,16 @@ export class AuthService {
 
   @Public()
   async register(registerDto: RegisterDto): Promise<User> {
-    return this.usersService.create(registerDto);
+    // Create office and admin user
+    const office = await this.officesService.create({
+      name: registerDto.officeName,
+      latitude: registerDto.latitude,
+      longitude: registerDto.longitude,
+      adminEmail: registerDto.adminEmail,
+      adminName: registerDto.adminName,
+      adminPassword: registerDto.adminPassword,
+    });
+    return office.admin;
   }
 
   @Public()

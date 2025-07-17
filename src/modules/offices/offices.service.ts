@@ -49,7 +49,7 @@ export class OfficesService {
 
   async findOne(id: string): Promise<Office> {
     const office = await this.entityManager.findOneBy(Office, {
-      id: Equal(id),
+      id,
     });
     if (!office) {
       throw new NotFoundException(`Office with ID ${id} not found`);

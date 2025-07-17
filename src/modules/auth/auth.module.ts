@@ -10,6 +10,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RefreshToken } from './entities/refresh-token.entity';
+import { OfficesService } from 'src/modules/offices/offices.service';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { RefreshToken } from './entities/refresh-token.entity';
   providers: [
     AuthService,
     JwtStrategy,
+    OfficesService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
