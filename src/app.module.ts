@@ -8,8 +8,6 @@ import { RolesModule } from './modules/roles/roles.module';
 import { SeederModule } from './modules/seeder/seeder.module';
 import { LoggerModule } from 'src/lib/logger/logger.module';
 import { AuthModule } from './modules/auth/auth.module';
-import { AuthService } from 'src/modules/auth/services/auth.service';
-import { JwtStrategy } from 'src/modules/auth/services/jwt.strategy';
 import { OfficesModule } from './modules/offices/offices.module';
 import { EmployeesModule } from './modules/employees/employees.module';
 import { AttendancesModule } from './modules/attendances/attendances.module';
@@ -30,6 +28,6 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     NotificationsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, AuthService, JwtStrategy],
+  providers: [AppService],
 })
 export class AppModule {}

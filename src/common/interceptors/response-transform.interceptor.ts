@@ -33,7 +33,7 @@ export class ResponseTransformInterceptor<T>
   ): Observable<Response<T>> {
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
-    const excludedRoutes = [''];
+    const excludedRoutes = ['/'];
 
     if (excludedRoutes.includes(response.req.url)) {
       return next.handle();
