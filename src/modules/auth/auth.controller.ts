@@ -31,7 +31,10 @@ export class AuthController {
       loginDto.email,
       loginDto.password,
     );
-    const refreshToken = await this.authService.createRefreshToken(user,result.access_token);
+    const refreshToken = await this.authService.createRefreshToken(
+      user,
+      result.access_token,
+    );
     return {
       ...result,
       refresh_token: refreshToken.token,

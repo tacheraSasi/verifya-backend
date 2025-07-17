@@ -101,7 +101,10 @@ export class UsersService {
   }
 
   async findByEmail(email: string) {
-    return await this.entityManager.findOneBy(User, { email: Equal(email) });
+    return await this.entityManager.findOne(User, {
+      where: { email: Equal(email) },
+      relations: ['office', 'role'],
+    });
   }
 
   async findById(id: string) {
