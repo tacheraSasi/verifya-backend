@@ -41,9 +41,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    if (!user.isEmailVerified) {
-      throw new UnauthorizedException('Email not verified');
-    }
+    // Removed email verification check
 
     const payload = { email: user.email, sub: user.id, role: user.userRole };
     return {
@@ -95,7 +93,10 @@ export class AuthService {
     return { message: 'Email verified successfully' };
   }
 
-  async createRefreshToken(user: User): Promise<RefreshToken> {
+  async createRefreshToken(
+    user: User,
+    access_token: string,
+  ): Promise<RefreshToken> {
     const token = uuidv4() + '.' + uuidv4();
     const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7); // 7 days
     const refreshToken = this.refreshTokenRepository.create({
@@ -103,6 +104,7 @@ export class AuthService {
       expiresAt,
       user,
       userId: user.id,
+      access_token,
     });
     return this.refreshTokenRepository.save(refreshToken);
   }
@@ -138,7 +140,7 @@ export class AuthService {
     const user = refreshToken.user;
     const payload = { email: user.email, sub: user.id, role: user.userRole };
     const access_token = this.jwtService.sign(payload);
-    const newRefreshToken = await this.createRefreshToken(user);
+    const newRefreshToken = await this.createRefreshToken(user, access_token);
     return {
       access_token,
       refresh_token: newRefreshToken.token,

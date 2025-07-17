@@ -16,6 +16,9 @@ export class RefreshToken {
   @Column({ unique: true })
   token: string;
 
+  @Column()
+  access_token: string;
+
   @Column({ type: 'timestamp' })
   expiresAt: Date;
 
