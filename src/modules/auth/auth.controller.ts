@@ -40,14 +40,14 @@ export class AuthController {
 
   @Public()
   @Post('register')
-  @ApiOperation({ summary: 'Register a new user' })
+  @ApiOperation({ summary: 'Register a new office' })
   @ApiResponse({
     status: 201,
-    description: 'User successfully created',
+    description: 'Office successfully created',
     type: User,
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
-  async register(@Body() registerDto: RegisterDto): Promise<User> {
+  async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
 

@@ -10,6 +10,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { OfficesService } from 'src/modules/offices/offices.service';
+import { NotificationsService } from 'src/modules/notifications/notifications.service';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +20,7 @@ export class AuthService {
     @InjectRepository(RefreshToken)
     private refreshTokenRepository: Repository<RefreshToken>,
     private officesService: OfficesService,
+    private notificationsService: NotificationsService,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
@@ -69,12 +71,14 @@ export class AuthService {
     // Create office and admin user
     const office = await this.officesService.create({
       name: registerDto.officeName,
-      latitude: registerDto.latitude,
-      longitude: registerDto.longitude,
-      adminEmail: registerDto.adminEmail,
-      adminName: registerDto.adminName,
-      adminPassword: registerDto.adminPassword,
       phoneNumber: registerDto.phoneNumber,
+      adminEmail: registerDto.adminEmail,
+      adminPassword: registerDto.adminPassword,
+    });
+    // Send SMS to admin
+    await this.notificationsService.sendSMS({
+      phoneNumber: registerDto.phoneNumber,
+      message: 'Welcome to Ekilie! Your office and admin account have been created.',
     });
     return office.admin;
   }

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, IsOptional, IsNumber } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class RegisterDto {
   @ApiProperty({
@@ -11,38 +11,12 @@ export class RegisterDto {
   officeName: string;
 
   @ApiProperty({
-    description: 'Latitude of the office location',
-    example: 40.7128,
-    required: false,
-  })
-  @IsOptional()
-  @IsNumber()
-  latitude?: number;
-
-  @ApiProperty({
-    description: 'Longitude of the office location',
-    example: -74.006,
-    required: false,
-  })
-  @IsOptional()
-  @IsNumber()
-  longitude?: number;
-
-  @ApiProperty({
     description: 'Email for the office admin account',
     example: 'admin@example.com',
   })
   @IsNotEmpty()
   @IsEmail()
   adminEmail: string;
-
-  @ApiProperty({
-    description: 'Name for the office admin account',
-    example: 'John Admin',
-  })
-  @IsNotEmpty()
-  @IsString()
-  adminName: string;
 
   @ApiProperty({
     description: 'Password for the office admin account',
@@ -52,7 +26,10 @@ export class RegisterDto {
   @IsString()
   adminPassword: string;
 
-  @ApiProperty({ description: 'Phone number for the office admin', example: '+1234567890' })
+  @ApiProperty({
+    description: 'Phone number for the office admin',
+    example: '+1234567890',
+  })
   @IsNotEmpty()
   @IsString()
   phoneNumber: string;

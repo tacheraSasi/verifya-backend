@@ -41,6 +41,7 @@ export class SeederService {
         name: 'Main HQ',
         latitude: 40.712776,
         longitude: -74.005974,
+        phoneNumber: '123-456-7890',
         admin: {
           name: 'Office Admin',
           email: 'admin@office.com',
@@ -65,6 +66,7 @@ export class SeederService {
         name: 'Branch Office',
         latitude: 34.052235,
         longitude: -118.243683,
+        phoneNumber: '987-654-3210',
         admin: {
           name: 'Branch Admin',
           email: 'admin@branch.com',
@@ -101,6 +103,7 @@ export class SeederService {
           name: officeData.name,
           latitude: officeData.latitude,
           longitude: officeData.longitude,
+          phoneNumber: officeData.phoneNumber,
         });
         office = await this.entityManager.save(office);
       }
