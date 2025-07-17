@@ -108,12 +108,16 @@ export class UsersService {
   }
 
   async findById(id: string) {
-    return await this.entityManager.findOneBy(User, { id });
+    return await this.entityManager.findOne(User, {
+      where: { id },
+      relations: ['office', 'role'],
+    });
   }
 
   async findByVerificationToken(token: string): Promise<User | null> {
     return this.entityManager.findOne(User, {
       where: { verificationToken: token },
+      relations: ['office', 'role'],
     });
   }
 
@@ -121,11 +125,13 @@ export class UsersService {
     return this.entityManager.save(user);
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    await this.entityManager.update(User, id, updateUserDto);
+    return this.findById(id);
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} user`;
+  async remove(id: string) {
+    await this.entityManager.delete(User, id);
+    return { message: `User with id ${id} removed` };
   }
 }
