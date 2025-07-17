@@ -11,6 +11,7 @@ import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { OfficesService } from 'src/modules/offices/offices.service';
+import { NotificationsModule } from 'src/modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { OfficesService } from 'src/modules/offices/offices.service';
       signOptions: { expiresIn: '60m' },
     }),
     TypeOrmModule.forFeature([RefreshToken]),
+    NotificationsModule,
   ],
   providers: [
     AuthService,

@@ -75,10 +75,10 @@ export class AuthService {
       adminEmail: registerDto.adminEmail,
       adminPassword: registerDto.adminPassword,
     });
-    // Send SMS to admin
+
     await this.notificationsService.sendSMS({
       phoneNumber: registerDto.phoneNumber,
-      message: 'Welcome to Ekilie! Your office and admin account have been created.',
+      message: `Welcome to ekiliSync ${registerDto.officeName}! Your office and admin account have been created.`,
     });
     return office.admin;
   }
