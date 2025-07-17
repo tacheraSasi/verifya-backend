@@ -8,11 +8,14 @@ export class Office extends BasicEntity {
   @Column()
   name: string;
 
-  @Column('decimal', { precision: 10, scale: 7, nullable: true })
-  latitude: number;
+  @Column({ nullable: true, type: 'decimal', precision: 10, scale: 7 })
+  latitude: number | null;
 
-  @Column('decimal', { precision: 10, scale: 7, nullable: true })
-  longitude: number;
+  @Column({ nullable: true, type: 'decimal', precision: 10, scale: 7 })
+  longitude: number | null;
+
+  @Column({ nullable: false })
+  phoneNumber: string;
 
   @OneToOne(() => User, { eager: true })
   @JoinColumn()

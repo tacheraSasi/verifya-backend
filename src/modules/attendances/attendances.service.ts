@@ -22,7 +22,7 @@ export class AttendancesService {
     });
     if (!user) throw new NotFoundException('User not found');
     const office = await this.entityManager.findOne(Office, {
-      where: { id: officeId },
+      where: { id: officeId as any },
     });
     if (!office) throw new NotFoundException('Office not found');
 

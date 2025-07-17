@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOfficeDto } from './dto/create-office.dto';
 import { UpdateOfficeDto } from './dto/update-office.dto';
-import { EntityManager, Equal } from 'typeorm';
+import { EntityManager } from 'typeorm';
 import { Office } from './entities/office.entity';
 import { UsersService } from '../users/users.service';
 
@@ -49,7 +49,7 @@ export class OfficesService {
 
   async findOne(id: string): Promise<Office> {
     const office = await this.entityManager.findOneBy(Office, {
-      id,
+      id: id as any,
     });
     if (!office) {
       throw new NotFoundException(`Office with ID ${id} not found`);
