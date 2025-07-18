@@ -20,7 +20,7 @@ import { NotificationsModule } from 'src/modules/notifications/notifications.mod
     JwtModule.register({
       global: true,
       secret: configuration().jwtSecret,
-      signOptions: { expiresIn: '60m' },
+      signOptions: { expiresIn: '24h' },
     }),
     TypeOrmModule.forFeature([RefreshToken]),
     NotificationsModule,
