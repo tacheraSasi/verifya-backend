@@ -20,7 +20,7 @@ export class NotificationsService {
 
   async sendSMS({ phoneNumber, message }: SendSmsDto): Promise<void> {
     const payload = {
-      sender_id: 17,
+      sender_id: 55,
       schedule: 'none',
       sms: message,
       recipients: [{ number: Number(phoneNumber) }],
@@ -34,7 +34,7 @@ export class NotificationsService {
             headers: {
               'Content-Type': 'application/json',
               Authorization:
-                'Bearer 148|aALck45bqeeFCxAH2OLJneyCiqq4Bj7NFJS7n9ML5d6e6d0c',
+                'Bearer 936|ozMnSRZdDkKN2B8dFDxQikdB5NqUrIuJr4hkWjVG638f79c9',
             },
           },
         ),
