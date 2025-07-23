@@ -69,6 +69,16 @@ export class EmployeesService {
     });
   }
 
+  async findAllByOffice(officeId: string) {
+    const office = await this.entityManager.findOneBy(Office, {
+      id: officeId as any,
+    });
+    if (!office) throw new NotFoundException('Office not found');
+    return this.entityManager.find(User, {
+      where: { userRole: UserRole.EMPLOYEE, office },
+    });
+  }
+
   async findOne(id: string) {
     return this.entityManager.findOne(User, {
       where: { id, userRole: UserRole.EMPLOYEE },

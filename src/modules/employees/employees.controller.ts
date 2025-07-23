@@ -10,7 +10,14 @@ import {
 import { EmployeesService } from './employees.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiBody,
+} from '@nestjs/swagger';
 
 @ApiTags('Employees')
 @ApiBearerAuth('JWT')
@@ -32,6 +39,17 @@ export class EmployeesController {
   @ApiResponse({ status: 200, description: 'Returns all employees' })
   findAll() {
     return this.employeesService.findAll();
+  }
+
+  @Get('office/:officeId')
+  @ApiOperation({ summary: 'Get all employees by office' })
+  @ApiParam({ name: 'officeId', type: String, description: 'Office ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns all employees in the specified office',
+  })
+  findAllByOffice(@Param('officeId') officeId: string) {
+    return this.employeesService.findAllByOffice(officeId);
   }
 
   @Get(':id')
