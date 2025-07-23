@@ -28,4 +28,4 @@ export class Otp {
 
   @Column()
   userId: number;
-} 
+}
