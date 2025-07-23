@@ -8,7 +8,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import { EmployeesService } from './employees.service';
-import { CreateEmployeeDto } from './dto/create-employee.dto';
+import { CreateEmployeeDto, VerifyOtpDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import {
   ApiTags,
@@ -18,6 +18,7 @@ import {
   ApiParam,
   ApiBody,
 } from '@nestjs/swagger';
+import { Public } from 'src/modules/auth/decorator/public.decorator';
 
 @ApiTags('Employees')
 @ApiBearerAuth('JWT')
@@ -39,6 +40,15 @@ export class EmployeesController {
   @ApiResponse({ status: 200, description: 'Returns all employees' })
   findAll() {
     return this.employeesService.findAll();
+  }
+
+  @Public()
+  @Post('verify-otp')
+  @ApiOperation({ summary: 'Verify employee OTP' })
+  @ApiResponse({ status: 200, description: 'OTP verified successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid OTP or email' })
+  verifyOtp(@Body() body: VerifyOtpDto) {
+    // return this.employeesService.verifyOtp(body.email, body.otp);
   }
 
   @Get('office/:officeId')
