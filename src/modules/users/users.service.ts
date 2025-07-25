@@ -6,6 +6,7 @@ import {
 import { CreateUserDto } from 'src/modules/users/dto/create-user.dto';
 import { UpdateUserDto } from 'src/modules/users/dto/update-user.dto';
 import { EntityManager, Equal } from 'typeorm';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { LoggerService } from 'src/lib/logger/logger.service';
 import { User, UserRole } from 'src/modules/users/entities/user.entity';
 import { Office } from 'src/modules/offices/entities/office.entity';
@@ -106,7 +107,9 @@ export class UsersService {
 
   async createForOffice(officeId: string, createUserDto: CreateUserDto) {
     const officeIdNum = Number(officeId);
-    const office = await this.entityManager.findOne(Office, { where: { id: officeIdNum } });
+    const office = await this.entityManager.findOne(Office, {
+      where: { id: officeIdNum },
+    });
     if (!office) throw new NotFoundException('Office not found');
     const user = this.entityManager.create(User, {
       ...createUserDto,
@@ -123,9 +126,15 @@ export class UsersService {
     });
   }
 
-  async updateForOffice(officeId: string, id: string, updateUserDto: UpdateUserDto) {
+  async updateForOffice(
+    officeId: string,
+    id: string,
+    updateUserDto: QueryDeepPartialEntity<User>,
+  ) {
     const officeIdNum = Number(officeId);
-    const user = await this.entityManager.findOne(User, { where: { id, office: { id: officeIdNum } } });
+    const user = await this.entityManager.findOne(User, {
+      where: { id, office: { id: officeIdNum } },
+    });
     if (!user) throw new NotFoundException('User not found');
     await this.entityManager.update(User, id, updateUserDto);
     return this.findOneByOffice(officeId, id);
@@ -133,10 +142,14 @@ export class UsersService {
 
   async removeForOffice(officeId: string, id: string) {
     const officeIdNum = Number(officeId);
-    const user = await this.entityManager.findOne(User, { where: { id, office: { id: officeIdNum } } });
+    const user = await this.entityManager.findOne(User, {
+      where: { id, office: { id: officeIdNum } },
+    });
     if (!user) throw new NotFoundException('User not found');
     await this.entityManager.delete(User, id);
-    return { message: `User with id ${id} removed from office ${officeId}` };
+    return {
+      message: `User with id ${id} removed from office ${officeId}`,
+    };
   }
 
   findOne(id: number) {

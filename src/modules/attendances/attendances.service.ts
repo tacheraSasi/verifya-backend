@@ -10,6 +10,7 @@ import { Attendance } from './entities/attendance.entity';
 import { User } from 'src/modules/users/entities/user.entity';
 import { Office } from 'src/modules/offices/entities/office.entity';
 import { isWithinDistance } from 'src/utils/haversine.util';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 @Injectable()
 export class AttendancesService {
@@ -73,9 +74,14 @@ export class AttendancesService {
     });
   }
 
-  async createForOffice(officeId: string, createAttendanceDto: CreateAttendanceDto) {
+  async createForOffice(
+    officeId: string,
+    createAttendanceDto: CreateAttendanceDto,
+  ) {
     const officeIdNum = Number(officeId);
-    const office = await this.entityManager.findOne(Office, { where: { id: officeIdNum } });
+    const office = await this.entityManager.findOne(Office, {
+      where: { id: officeIdNum },
+    });
     if (!office) throw new NotFoundException('Office not found');
     const attendance = this.entityManager.create(Attendance, {
       ...createAttendanceDto,
@@ -92,9 +98,15 @@ export class AttendancesService {
     });
   }
 
-  async updateForOffice(officeId: string, id: string, updateAttendanceDto: UpdateAttendanceDto) {
+  async updateForOffice(
+    officeId: string,
+    id: string,
+    updateAttendanceDto: QueryDeepPartialEntity<Attendance>,
+  ) {
     const officeIdNum = Number(officeId);
-    const attendance = await this.entityManager.findOne(Attendance, { where: { id, office: { id: officeIdNum } } });
+    const attendance = await this.entityManager.findOne(Attendance, {
+      where: { id, office: { id: officeIdNum } },
+    });
     if (!attendance) throw new NotFoundException('Attendance not found');
     await this.entityManager.update(Attendance, id, updateAttendanceDto);
     return this.findOneByOffice(officeId, id);
@@ -102,9 +114,13 @@ export class AttendancesService {
 
   async removeForOffice(officeId: string, id: string) {
     const officeIdNum = Number(officeId);
-    const attendance = await this.entityManager.findOne(Attendance, { where: { id, office: { id: officeIdNum } } });
+    const attendance = await this.entityManager.findOne(Attendance, {
+      where: { id, office: { id: officeIdNum } },
+    });
     if (!attendance) throw new NotFoundException('Attendance not found');
     await this.entityManager.delete(Attendance, id);
-    return { message: `Attendance with id ${id} removed from office ${officeId}` };
+    return {
+      message: `Attendance with id ${id} removed from office ${officeId}`,
+    };
   }
 }

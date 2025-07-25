@@ -89,8 +89,16 @@ export class EmployeesController {
   @ApiBody({ type: UpdateEmployeeDto })
   @ApiResponse({ status: 200, description: 'Employee updated' })
   @ApiResponse({ status: 404, description: 'Employee not found' })
-  updateForOffice(@Param('officeId') officeId: string, @Param('id') id: string, @Body() updateEmployeeDto: UpdateEmployeeDto) {
-    return this.employeesService.updateForOffice(officeId, id, updateEmployeeDto);
+  updateForOffice(
+    @Param('officeId') officeId: string,
+    @Param('id') id: string,
+    @Body() updateEmployeeDto: UpdateEmployeeDto,
+  ) {
+    return this.employeesService.updateForOffice(
+      officeId,
+      id,
+      updateEmployeeDto as any,
+    );
   }
 
   @Delete('office/:officeId/:id')

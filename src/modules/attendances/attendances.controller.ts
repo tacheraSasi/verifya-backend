@@ -79,8 +79,16 @@ export class AttendancesController {
   }
 
   @Patch('office/:officeId/:id')
-  updateForOffice(@Param('officeId') officeId: string, @Param('id') id: string, @Body() updateAttendanceDto: UpdateAttendanceDto) {
-    return this.attendancesService.updateForOffice(officeId, id, updateAttendanceDto);
+  updateForOffice(
+    @Param('officeId') officeId: string,
+    @Param('id') id: string,
+    @Body() updateAttendanceDto: UpdateAttendanceDto,
+  ) {
+    return this.attendancesService.updateForOffice(
+      officeId,
+      id,
+      updateAttendanceDto as any,
+    );
   }
 
   @Delete(':id')

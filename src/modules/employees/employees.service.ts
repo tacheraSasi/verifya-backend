@@ -6,6 +6,7 @@ import {
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { EntityManager, Equal } from 'typeorm';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { User, UserRole } from 'src/modules/users/entities/user.entity';
 import { Office } from 'src/modules/offices/entities/office.entity';
 import * as crypto from 'crypto';
@@ -77,9 +78,14 @@ export class EmployeesService {
     });
   }
 
-  async createForOffice(officeId: string, createEmployeeDto: CreateEmployeeDto) {
+  async createForOffice(
+    officeId: string,
+    createEmployeeDto: CreateEmployeeDto,
+  ) {
     const officeIdNum = Number(officeId);
-    const office = await this.entityManager.findOne(Office, { where: { id: officeIdNum } });
+    const office = await this.entityManager.findOne(Office, {
+      where: { id: officeIdNum },
+    });
     if (!office) throw new NotFoundException('Office not found');
     const user = this.entityManager.create(User, {
       ...createEmployeeDto,
@@ -99,9 +105,15 @@ export class EmployeesService {
     });
   }
 
-  async updateForOffice(officeId: string, id: string, updateEmployeeDto: UpdateEmployeeDto) {
+  async updateForOffice(
+    officeId: string,
+    id: string,
+    updateEmployeeDto: QueryDeepPartialEntity<Employee>,
+  ) {
     const officeIdNum = Number(officeId);
-    const employee = await this.entityManager.findOne(Employee, { where: { id, office: { id: officeIdNum } } });
+    const employee = await this.entityManager.findOne(Employee, {
+      where: { id, office: { id: officeIdNum } },
+    });
     if (!employee) throw new NotFoundException('Employee not found');
     await this.entityManager.update(Employee, id, updateEmployeeDto);
     return this.findOneByOffice(officeId, id);
@@ -109,10 +121,14 @@ export class EmployeesService {
 
   async removeForOffice(officeId: string, id: string) {
     const officeIdNum = Number(officeId);
-    const employee = await this.entityManager.findOne(Employee, { where: { id, office: { id: officeIdNum } } });
+    const employee = await this.entityManager.findOne(Employee, {
+      where: { id, office: { id: officeIdNum } },
+    });
     if (!employee) throw new NotFoundException('Employee not found');
     await this.entityManager.delete(Employee, id);
-    return { message: `Employee with id ${id} removed from office ${officeId}` };
+    return {
+      message: `Employee with id ${id} removed from office ${officeId}`,
+    };
   }
 
   async findOne(id: string) {
