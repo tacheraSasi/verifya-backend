@@ -4,6 +4,7 @@ import { UpdateOfficeDto } from './dto/update-office.dto';
 import { EntityManager } from 'typeorm';
 import { Office } from './entities/office.entity';
 import { UsersService } from '../users/users.service';
+import { Employee } from 'src/modules/employees/entities/employee.entity';
 
 @Injectable()
 export class OfficesService {
@@ -47,6 +48,25 @@ export class OfficesService {
 
   async findAll(): Promise<Office[]> {
     return this.entityManager.find(Office);
+  }
+  async count(officeId: string): Promise<any> {
+    const office = await this.entityManager.findOneBy(Office, {
+      id: officeId as any,
+    });
+    if (!office) {
+      throw new NotFoundException(`Office with ID ${officeId} not found`);
+    }
+
+    // Count employees in the office
+    const employeesCount = await this.entityManager.count(Employee, {
+      where: { office: { id: +officeId } },
+    });
+
+    // const checkedInCount = await this.entityManager.count(Employee, {
+    //   where: { office: { id: +officeId }, checkedIn: true },
+    // });
+
+    return { employees: employeesCount, checkedIn: 1, lateCheckedIn: 0 };
   }
 
   async findOne(id: string): Promise<Office> {

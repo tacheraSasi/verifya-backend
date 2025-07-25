@@ -51,6 +51,17 @@ export class OfficesController {
   async findAll(): Promise<Office[]> {
     return this.officesService.findAll();
   }
+  @Get('count/:id')
+  @ApiOperation({ summary: 'Get the count of all offices' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the count of all offices',
+    type: Number,
+  })
+  async count(@Param('id') officeId: string): Promise<any> {
+    //TODO:Will change this later to use the AuthUser decorator to get the office ID
+    return await this.officesService.count(officeId);
+  }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get an office by ID' })
