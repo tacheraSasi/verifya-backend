@@ -62,6 +62,47 @@ export class EmployeesController {
     return this.employeesService.findAllByOffice(officeId);
   }
 
+  @Post('office/:officeId')
+  @ApiOperation({ summary: 'Create a new employee for an office' })
+  @ApiParam({ name: 'officeId', type: String, description: 'Office ID' })
+  @ApiBody({ type: CreateEmployeeDto })
+  @ApiResponse({ status: 201, description: 'Employee created successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  createForOffice(@Param('officeId') officeId: string, @Body() createEmployeeDto: CreateEmployeeDto) {
+    return this.employeesService.createForOffice(officeId, createEmployeeDto);
+  }
+
+  @Get('office/:officeId/:id')
+  @ApiOperation({ summary: 'Get an employee by ID for an office' })
+  @ApiParam({ name: 'officeId', type: String, description: 'Office ID' })
+  @ApiParam({ name: 'id', type: String, description: 'Employee ID' })
+  @ApiResponse({ status: 200, description: 'Returns the employee' })
+  @ApiResponse({ status: 404, description: 'Employee not found' })
+  findOneByOffice(@Param('officeId') officeId: string, @Param('id') id: string) {
+    return this.employeesService.findOneByOffice(officeId, id);
+  }
+
+  @Patch('office/:officeId/:id')
+  @ApiOperation({ summary: 'Update an employee for an office' })
+  @ApiParam({ name: 'officeId', type: String, description: 'Office ID' })
+  @ApiParam({ name: 'id', type: String, description: 'Employee ID' })
+  @ApiBody({ type: UpdateEmployeeDto })
+  @ApiResponse({ status: 200, description: 'Employee updated' })
+  @ApiResponse({ status: 404, description: 'Employee not found' })
+  updateForOffice(@Param('officeId') officeId: string, @Param('id') id: string, @Body() updateEmployeeDto: UpdateEmployeeDto) {
+    return this.employeesService.updateForOffice(officeId, id, updateEmployeeDto);
+  }
+
+  @Delete('office/:officeId/:id')
+  @ApiOperation({ summary: 'Delete an employee for an office' })
+  @ApiParam({ name: 'officeId', type: String, description: 'Office ID' })
+  @ApiParam({ name: 'id', type: String, description: 'Employee ID' })
+  @ApiResponse({ status: 204, description: 'Employee deleted' })
+  @ApiResponse({ status: 404, description: 'Employee not found' })
+  removeForOffice(@Param('officeId') officeId: string, @Param('id') id: string) {
+    return this.employeesService.removeForOffice(officeId, id);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get an employee by ID' })
   @ApiParam({ name: 'id', type: String, description: 'Employee ID' })

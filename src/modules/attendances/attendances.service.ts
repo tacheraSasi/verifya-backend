@@ -64,4 +64,47 @@ export class AttendancesService {
   async remove(id: string) {
     return this.entityManager.delete(Attendance, id);
   }
+
+  async findAllByOffice(officeId: string) {
+    const officeIdNum = Number(officeId);
+    return this.entityManager.find(Attendance, {
+      where: { office: { id: officeIdNum } },
+      relations: ['user', 'office'],
+    });
+  }
+
+  async createForOffice(officeId: string, createAttendanceDto: CreateAttendanceDto) {
+    const officeIdNum = Number(officeId);
+    const office = await this.entityManager.findOne(Office, { where: { id: officeIdNum } });
+    if (!office) throw new NotFoundException('Office not found');
+    const attendance = this.entityManager.create(Attendance, {
+      ...createAttendanceDto,
+      office,
+    });
+    return this.entityManager.save(attendance);
+  }
+
+  async findOneByOffice(officeId: string, id: string) {
+    const officeIdNum = Number(officeId);
+    return this.entityManager.findOne(Attendance, {
+      where: { id, office: { id: officeIdNum } },
+      relations: ['user', 'office'],
+    });
+  }
+
+  async updateForOffice(officeId: string, id: string, updateAttendanceDto: UpdateAttendanceDto) {
+    const officeIdNum = Number(officeId);
+    const attendance = await this.entityManager.findOne(Attendance, { where: { id, office: { id: officeIdNum } } });
+    if (!attendance) throw new NotFoundException('Attendance not found');
+    await this.entityManager.update(Attendance, id, updateAttendanceDto);
+    return this.findOneByOffice(officeId, id);
+  }
+
+  async removeForOffice(officeId: string, id: string) {
+    const officeIdNum = Number(officeId);
+    const attendance = await this.entityManager.findOne(Attendance, { where: { id, office: { id: officeIdNum } } });
+    if (!attendance) throw new NotFoundException('Attendance not found');
+    await this.entityManager.delete(Attendance, id);
+    return { message: `Attendance with id ${id} removed from office ${officeId}` };
+  }
 }

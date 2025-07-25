@@ -96,6 +96,49 @@ export class UsersService {
     return await this.entityManager.find(User);
   }
 
+  async findAllByOffice(officeId: string) {
+    const officeIdNum = Number(officeId);
+    return this.entityManager.find(User, {
+      where: { office: { id: officeIdNum } },
+      relations: ['office', 'role'],
+    });
+  }
+
+  async createForOffice(officeId: string, createUserDto: CreateUserDto) {
+    const officeIdNum = Number(officeId);
+    const office = await this.entityManager.findOne(Office, { where: { id: officeIdNum } });
+    if (!office) throw new NotFoundException('Office not found');
+    const user = this.entityManager.create(User, {
+      ...createUserDto,
+      office,
+    });
+    return this.entityManager.save(user);
+  }
+
+  async findOneByOffice(officeId: string, id: string) {
+    const officeIdNum = Number(officeId);
+    return this.entityManager.findOne(User, {
+      where: { id, office: { id: officeIdNum } },
+      relations: ['office', 'role'],
+    });
+  }
+
+  async updateForOffice(officeId: string, id: string, updateUserDto: UpdateUserDto) {
+    const officeIdNum = Number(officeId);
+    const user = await this.entityManager.findOne(User, { where: { id, office: { id: officeIdNum } } });
+    if (!user) throw new NotFoundException('User not found');
+    await this.entityManager.update(User, id, updateUserDto);
+    return this.findOneByOffice(officeId, id);
+  }
+
+  async removeForOffice(officeId: string, id: string) {
+    const officeIdNum = Number(officeId);
+    const user = await this.entityManager.findOne(User, { where: { id, office: { id: officeIdNum } } });
+    if (!user) throw new NotFoundException('User not found');
+    await this.entityManager.delete(User, id);
+    return { message: `User with id ${id} removed from office ${officeId}` };
+  }
+
   findOne(id: number) {
     return `This action returns a #${id} user`;
   }

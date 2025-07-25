@@ -41,6 +41,16 @@ export class AttendancesController {
     return this.attendancesService.findAll();
   }
 
+  @Get('office/:officeId')
+  findAllByOffice(@Param('officeId') officeId: string) {
+    return this.attendancesService.findAllByOffice(officeId);
+  }
+
+  @Post('office/:officeId')
+  createForOffice(@Param('officeId') officeId: string, @Body() createAttendanceDto: CreateAttendanceDto) {
+    return this.attendancesService.createForOffice(officeId, createAttendanceDto);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get an attendance record by ID' })
   @ApiParam({ name: 'id', type: String, description: 'Attendance record ID' })
@@ -48,6 +58,11 @@ export class AttendancesController {
   @ApiResponse({ status: 404, description: 'Attendance record not found' })
   findOne(@Param('id') id: string) {
     return this.attendancesService.findOne(id);
+  }
+
+  @Get('office/:officeId/:id')
+  findOneByOffice(@Param('officeId') officeId: string, @Param('id') id: string) {
+    return this.attendancesService.findOneByOffice(officeId, id);
   }
 
   @Patch(':id')
@@ -63,6 +78,11 @@ export class AttendancesController {
     return this.attendancesService.update(id, updateAttendanceDto);
   }
 
+  @Patch('office/:officeId/:id')
+  updateForOffice(@Param('officeId') officeId: string, @Param('id') id: string, @Body() updateAttendanceDto: UpdateAttendanceDto) {
+    return this.attendancesService.updateForOffice(officeId, id, updateAttendanceDto);
+  }
+
   @Delete(':id')
   @ApiOperation({ summary: 'Delete an attendance record' })
   @ApiParam({ name: 'id', type: String, description: 'Attendance record ID' })
@@ -70,5 +90,10 @@ export class AttendancesController {
   @ApiResponse({ status: 404, description: 'Attendance record not found' })
   remove(@Param('id') id: string) {
     return this.attendancesService.remove(id);
+  }
+
+  @Delete('office/:officeId/:id')
+  removeForOffice(@Param('officeId') officeId: string, @Param('id') id: string) {
+    return this.attendancesService.removeForOffice(officeId, id);
   }
 }

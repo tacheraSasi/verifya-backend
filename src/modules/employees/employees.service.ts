@@ -70,13 +70,49 @@ export class EmployeesService {
   }
 
   async findAllByOffice(officeId: string) {
-    const office = await this.entityManager.findOneBy(Office, {
-      id: officeId as any,
+    const officeIdNum = Number(officeId);
+    return this.entityManager.find(Employee, {
+      where: { office: { id: officeIdNum } },
+      relations: ['user', 'office'],
     });
+  }
+
+  async createForOffice(officeId: string, createEmployeeDto: CreateEmployeeDto) {
+    const officeIdNum = Number(officeId);
+    const office = await this.entityManager.findOne(Office, { where: { id: officeIdNum } });
     if (!office) throw new NotFoundException('Office not found');
-    return this.entityManager.find(User, {
-      where: { userRole: UserRole.EMPLOYEE, office },
+    const user = this.entityManager.create(User, {
+      ...createEmployeeDto,
+      office,
+      userRole: UserRole.EMPLOYEE,
     });
+    await this.entityManager.save(user);
+    const employee = this.entityManager.create(Employee, { user, office });
+    return this.entityManager.save(employee);
+  }
+
+  async findOneByOffice(officeId: string, id: string) {
+    const officeIdNum = Number(officeId);
+    return this.entityManager.findOne(Employee, {
+      where: { id, office: { id: officeIdNum } },
+      relations: ['user', 'office'],
+    });
+  }
+
+  async updateForOffice(officeId: string, id: string, updateEmployeeDto: UpdateEmployeeDto) {
+    const officeIdNum = Number(officeId);
+    const employee = await this.entityManager.findOne(Employee, { where: { id, office: { id: officeIdNum } } });
+    if (!employee) throw new NotFoundException('Employee not found');
+    await this.entityManager.update(Employee, id, updateEmployeeDto);
+    return this.findOneByOffice(officeId, id);
+  }
+
+  async removeForOffice(officeId: string, id: string) {
+    const officeIdNum = Number(officeId);
+    const employee = await this.entityManager.findOne(Employee, { where: { id, office: { id: officeIdNum } } });
+    if (!employee) throw new NotFoundException('Employee not found');
+    await this.entityManager.delete(Employee, id);
+    return { message: `Employee with id ${id} removed from office ${officeId}` };
   }
 
   async findOne(id: string) {
