@@ -68,7 +68,10 @@ export class EmployeesController {
   @ApiBody({ type: CreateEmployeeDto })
   @ApiResponse({ status: 201, description: 'Employee created successfully' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
-  createForOffice(@Param('officeId') officeId: string, @Body() createEmployeeDto: CreateEmployeeDto) {
+  createForOffice(
+    @Param('officeId') officeId: string,
+    @Body() createEmployeeDto: CreateEmployeeDto,
+  ) {
     return this.employeesService.createForOffice(officeId, createEmployeeDto);
   }
 
@@ -78,7 +81,10 @@ export class EmployeesController {
   @ApiParam({ name: 'id', type: String, description: 'Employee ID' })
   @ApiResponse({ status: 200, description: 'Returns the employee' })
   @ApiResponse({ status: 404, description: 'Employee not found' })
-  findOneByOffice(@Param('officeId') officeId: string, @Param('id') id: string) {
+  findOneByOffice(
+    @Param('officeId') officeId: string,
+    @Param('id') id: string,
+  ) {
     return this.employeesService.findOneByOffice(officeId, id);
   }
 
@@ -107,7 +113,10 @@ export class EmployeesController {
   @ApiParam({ name: 'id', type: String, description: 'Employee ID' })
   @ApiResponse({ status: 204, description: 'Employee deleted' })
   @ApiResponse({ status: 404, description: 'Employee not found' })
-  removeForOffice(@Param('officeId') officeId: string, @Param('id') id: string) {
+  removeForOffice(
+    @Param('officeId') officeId: string,
+    @Param('id') id: string,
+  ) {
     return this.employeesService.removeForOffice(officeId, id);
   }
 
