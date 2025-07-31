@@ -25,11 +25,7 @@ export class UsersService {
 
     // Check if office exists
     const office = await this.entityManager.findOneBy(Office, {
-<<<<<<< HEAD
       id: officeId as any,
-=======
-      id: Equal(+officeId),
->>>>>>> 93e7ffb (Ellie: fixed all the errors)
     });
     if (!office) {
       throw new NotFoundException(`Office with ID ${officeId} not found`);
