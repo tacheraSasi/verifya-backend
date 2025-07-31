@@ -24,7 +24,7 @@ export class EmployeesService {
     const { name, email, officeId } = createEmployeeDto;
     // Check if office exists
     const office = await this.entityManager.findOneBy(Office, {
-      id: officeId as any,
+      id: Equal(+officeId),
     });
     if (!office) throw new NotFoundException('Office not found');
     // Check if email is already in use
