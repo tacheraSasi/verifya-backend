@@ -44,7 +44,7 @@ export class EmployeesService {
       email,
       userRole: UserRole.EMPLOYEE,
       office,
-      isEmailVerified: false,
+      isVerified: false,
       phoneNumber,
     });
     await this.entityManager.save(user);
@@ -93,7 +93,7 @@ export class EmployeesService {
     if (!otpEntity.expiresAt || otpEntity.expiresAt < new Date())
       throw new BadRequestException('OTP expired');
     // Mark as verified
-    user.isEmailVerified = true;
+    user.isVerified = true;
     await this.entityManager.save(user);
     // Issue JWT
     const payload = {
@@ -146,7 +146,7 @@ export class EmployeesService {
       email,
       userRole: UserRole.EMPLOYEE,
       office,
-      isEmailVerified: false,
+      isVerified: false,
       verificationToken,
     });
     await this.entityManager.save(user);
@@ -260,7 +260,7 @@ export class EmployeesService {
       throw new NotFoundException('Invalid or expired verification token');
     // Set password and mark as verified
     user.password = password;
-    user.isEmailVerified = true;
+    user.isVerified = true;
     user.verificationToken = '';
     await this.entityManager.save(user);
     return { message: 'Account verified. You can now log in.' };

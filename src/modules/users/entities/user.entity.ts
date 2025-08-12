@@ -59,7 +59,7 @@ export class User {
   createdAt: Date;
 
   @Column({ default: false })
-  isEmailVerified: boolean;
+  isVerified: boolean;
 
   @Column({ nullable: true })
   verificationToken: string;

@@ -52,13 +52,13 @@ export class SeederService {
             name: 'Verified Employee',
             email: 'verified@office.com',
             password: 'Verified@1234',
-            isEmailVerified: true,
+            isVerified: true,
           },
           {
             name: 'Non-Verified Employee',
             email: 'nonverified@office.com',
             password: 'NonVerified@1234',
-            isEmailVerified: false,
+            isVerified: false,
           },
         ],
       },
@@ -77,13 +77,13 @@ export class SeederService {
             name: 'Branch Verified',
             email: 'branch.verified@office.com',
             password: 'BranchVerified@1234',
-            isEmailVerified: true,
+            isVerified: true,
           },
           {
             name: 'Branch Non-Verified',
             email: 'branch.nonverified@office.com',
             password: 'BranchNonVerified@1234',
-            isEmailVerified: false,
+            isVerified: false,
           },
         ],
       },
@@ -119,7 +119,7 @@ export class SeederService {
           userRole: UserRole.ADMIN,
           office,
           verificationToken: 'seeded-admin-token',
-          isEmailVerified: true,
+          isVerified: true,
           ...(adminRole ? { role: adminRole } : {}),
         });
         await this.entityManager.save(adminUser);
@@ -139,7 +139,7 @@ export class SeederService {
             userRole: UserRole.EMPLOYEE,
             office,
             verificationToken: 'seeded-employee-token',
-            isEmailVerified: emp.isEmailVerified,
+            isVerified: emp.isVerified,
             ...(employeeRole ? { role: employeeRole } : {}),
           });
           await this.entityManager.save(employeeUser);

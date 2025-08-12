@@ -87,7 +87,7 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Invalid or expired verification token');
     }
-    user.isEmailVerified = true;
+    user.isVerified = true;
     user.verificationToken = '';
     await this.usersService.save(user);
     return { message: 'Email verified successfully' };
