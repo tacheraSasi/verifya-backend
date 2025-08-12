@@ -135,7 +135,6 @@ export class AuthService {
     if (!refreshToken) {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
-    // Optionally revoke the old refresh token (rotate)
     await this.revokeRefreshToken(token);
     const user = refreshToken.user;
     const payload = { email: user.email, sub: user.id, role: user.userRole };
