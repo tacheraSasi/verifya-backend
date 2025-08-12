@@ -22,10 +22,4 @@ export class Employee {
 
   // Phone number for invitation
   phoneNumber: string;
-
-  // OTP for verification
-  otp: string;
-
-  // OTP expiration
-  otpExpires: Date;
 }
