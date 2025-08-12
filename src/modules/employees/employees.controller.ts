@@ -26,13 +26,13 @@ import { Public } from 'src/modules/auth/decorator/public.decorator';
 export class EmployeesController {
   constructor(private readonly employeesService: EmployeesService) {}
 
-  @Post()
-  @ApiOperation({ summary: 'Create a new employee' })
+  @Post('invite')
+  @ApiOperation({ summary: 'Invite a new employee (admin only)' })
   @ApiBody({ type: CreateEmployeeDto })
-  @ApiResponse({ status: 201, description: 'Employee created successfully' })
+  @ApiResponse({ status: 201, description: 'Employee invited successfully' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
-  create(@Body() createEmployeeDto: CreateEmployeeDto) {
-    return this.employeesService.create(createEmployeeDto);
+  invite(@Body() createEmployeeDto: CreateEmployeeDto) {
+    return this.employeesService.inviteEmployee(createEmployeeDto);
   }
 
   @Get()
@@ -48,7 +48,7 @@ export class EmployeesController {
   @ApiResponse({ status: 200, description: 'OTP verified successfully' })
   @ApiResponse({ status: 400, description: 'Invalid OTP or email' })
   verifyOtp(@Body() body: VerifyOtpDto) {
-    // return this.employeesService.verifyOtp(body.email, body.otp);
+    return this.employeesService.verifyOtp(body.email, body.otp);
   }
 
   @Get('office/:officeId')

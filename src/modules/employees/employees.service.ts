@@ -13,12 +13,108 @@ import * as crypto from 'crypto';
 import { Employee } from './entities/employee.entity';
 import { NotificationsService } from '../notifications/notifications.service';
 
+import { JwtService } from '@nestjs/jwt';
+
 @Injectable()
 export class EmployeesService {
   constructor(
     private readonly entityManager: EntityManager,
     private readonly notificationsService: NotificationsService,
+    private readonly jwtService: JwtService,
   ) {}
+  async inviteEmployee(createEmployeeDto: CreateEmployeeDto) {
+    const { name, email, officeId, phoneNumber } = createEmployeeDto;
+    // Check if office exists
+    const office = await this.entityManager.findOneBy(Office, {
+      id: Equal(typeof officeId === 'string' ? Number(officeId) : officeId),
+    });
+    if (!office) throw new NotFoundException('Office not found');
+    // Check if email is already in use
+    const existingUser = await this.entityManager.findOneBy(User, {
+      email: Equal(email),
+    });
+    if (existingUser) throw new BadRequestException('Email already in use');
+    // Generate OTP
+    const otp = this.generateOtp();
+    const otpExpires = new Date(Date.now() + 1000 * 60 * 10); // 10 min
+    // Create user (not verified)
+    const user = this.entityManager.create(User, {
+      name,
+      email,
+      userRole: UserRole.EMPLOYEE,
+      office,
+      isEmailVerified: false,
+    });
+    await this.entityManager.save(user);
+    // Create employee with phone, otp, otpExpires
+    const employee = this.entityManager.create(Employee, {
+      user,
+      office,
+      phoneNumber,
+      otp,
+      otpExpires,
+    });
+    await this.entityManager.save(employee);
+    // Send email and SMS
+    const message = `Hi ${name},\n\nYou have been invited to join ${office.name} on ekiliSync!\n\nYour OTP is: ${otp}\n\nThis OTP is valid for 10 minutes.\n\nWelcome aboard!`;
+    await this.notificationsService.sendEmail({
+      to: email,
+      subject: 'You are invited to ekiliSync',
+      message,
+    });
+    await this.notificationsService.sendSMS({
+      phoneNumber,
+      message: `ekiliSync: Your OTP is ${otp}. It expires in 10 minutes.`,
+    });
+    return { message: 'Invitation sent via email and SMS.' };
+  }
+
+  async verifyOtp(email: string, otp: string) {
+    // Find employee by user email
+    const employee = await this.entityManager.findOne(Employee, {
+      where: { user: { email } },
+      relations: ['user', 'office'],
+    });
+    if (!employee) throw new NotFoundException('Employee not found');
+  if (employee.otp !== otp) throw new BadRequestException('Invalid OTP');
+    if (!employee.otpExpires || employee.otpExpires < new Date())
+      throw new BadRequestException('OTP expired');
+    // Mark as verified
+    employee.user.isEmailVerified = true;
+    employee.otp = '';
+    employee.otpExpires = new Date(0); // Set to epoch (past date)
+    await this.entityManager.save(employee.user);
+    await this.entityManager.save(employee);
+    // Issue JWT
+    const payload = {
+      email: employee.user.email,
+      sub: employee.user.id,
+      role: employee.user.userRole,
+    };
+    const access_token = this.jwtService.sign(payload);
+    return {
+      access_token,
+      user: {
+        id: employee.user.id,
+        name: employee.user.name,
+        email: employee.user.email,
+        role: employee.user.userRole,
+        office: employee.office
+          ? {
+              id: employee.office.id,
+              name: employee.office.name,
+              latitude: employee.office.latitude,
+              longitude: employee.office.longitude,
+              createdAt: employee.office.createdAt,
+            }
+          : null,
+      },
+    };
+  }
+
+  private generateOtp(): string {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+  }
 
   async create(createEmployeeDto: CreateEmployeeDto) {
     const { name, email, officeId } = createEmployeeDto;

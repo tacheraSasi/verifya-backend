@@ -16,6 +16,14 @@ export class CreateEmployeeDto {
   email: string;
 
   @ApiProperty({
+    description: 'Phone number of the employee',
+    example: '+1234567890',
+  })
+  @IsNotEmpty()
+  @IsString()
+  phoneNumber: string;
+
+  @ApiProperty({
     description: 'Office ID the employee belongs to',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })

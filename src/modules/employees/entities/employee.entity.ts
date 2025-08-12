@@ -19,4 +19,13 @@ export class Employee {
 
   @ManyToOne(() => Office, office => office.users)
   office: Office;
+
+  // Phone number for invitation
+  phoneNumber: string;
+
+  // OTP for verification
+  otp: string;
+
+  // OTP expiration
+  otpExpires: Date;
 }
