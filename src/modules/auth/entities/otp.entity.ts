@@ -27,5 +27,5 @@ export class Otp {
   user: User;
 
   @Column()
-  userId: number;
+  userId: string;
 }
