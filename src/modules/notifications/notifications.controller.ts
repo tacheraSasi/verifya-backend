@@ -1,10 +1,12 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
+import { Public } from 'src/modules/auth/decorator/public.decorator';
 
 @Controller('notifications')
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
+  @Public()
   @Post('sms')
   async sendSms(@Body() body: { phoneNumber: string; message: string }) {
     await this.notificationsService.sendSMS(body);

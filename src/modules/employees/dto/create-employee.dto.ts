@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsEmail, IsUUID, IsString } from 'class-validator';
+import { IsNotEmpty, IsEmail, IsUUID, IsString, IsOptional } from 'class-validator';
 
 export class CreateEmployeeDto {
   @ApiProperty({ description: 'Name of the employee', example: 'Jane Doe' })
@@ -22,6 +22,15 @@ export class CreateEmployeeDto {
   @IsNotEmpty()
   @IsString()
   phoneNumber: string;
+
+  @ApiProperty({
+    description: 'Password for the employee (admin only, optional)',
+    example: 'StrongPassword123',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  password?: string;
 
   @ApiProperty({
     description: 'Office ID the employee belongs to',

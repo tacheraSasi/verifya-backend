@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
 
 interface SendSmsDto {
   phoneNumber: string;
@@ -16,38 +17,46 @@ interface SendEmailDto {
 
 @Injectable()
 export class NotificationsService {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
+  ) {}
+
+  private smsApiKey = this.configService.get<string>('smsApiKey');
+  private emailApiKey = this.configService.get<string>('emailApiKey');
+  private smsApiUrl =
+    this.configService.get<string>('smsApiUrl') ||
+    'https://api.notify.africa/v2/send-sms';
+  private senderId = this.configService.get<string>('senderId');
+
+  private readonly logger = new Logger();
 
   async sendSMS({ phoneNumber, message }: SendSmsDto): Promise<void> {
     const payload = {
-      sender_id: 55,
+      sender_id: this.senderId,
       schedule: 'none',
       sms: message,
       recipients: [{ number: Number(phoneNumber) }],
     };
     try {
       const response: any = await firstValueFrom(
-        this.httpService.post(
-          'https://api.notify.africa/v2/send-sms',
-          payload,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization:
-                'Bearer 936|ozMnSRZdDkKN2B8dFDxQikdB5NqUrIuJr4hkWjVG638f79c9',
-            },
+        this.httpService.post(this.smsApiUrl, payload, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + this.smsApiKey,
           },
-        ),
+        }),
       );
-      console.log(`Notify Africa response [${phoneNumber}]:`, response.data);
+      this.logger.log(`SMS sent to ${phoneNumber}: ${message}`);
+      this.logger.debug(`Response: ${JSON.stringify(response.data)}`);
     } catch (error) {
-      console.error(`Failed to send SMS to ${phoneNumber}:`, error.message);
+      this.logger .error(`Failed to send SMS to ${phoneNumber}:`, error.message);
     }
   }
 
   async sendEmail({ to, subject, message, from }: SendEmailDto): Promise<void> {
     const payload = {
-      apikey: 'relay-6087f8c42d70f0650b9f023adc',
+      apikey: '',
       to,
       subject,
       message,

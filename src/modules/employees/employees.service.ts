@@ -127,7 +127,7 @@ export class EmployeesService {
   }
 
   async create(createEmployeeDto: CreateEmployeeDto) {
-    const { name, email, officeId } = createEmployeeDto;
+    const { name, email, officeId, phoneNumber, password } = createEmployeeDto;
     // Check if office exists
     const office = await this.entityManager.findOneBy(Office, {
       id: Equal(+officeId),
@@ -138,36 +138,42 @@ export class EmployeesService {
       email: Equal(email),
     });
     if (existingUser) throw new BadRequestException('Email already in use');
-    // Create verification token
-    const verificationToken = this.getVerifcationToken();
-    // Create user with no password yet
+    // Create user with password
     const user = this.entityManager.create(User, {
       name,
       email,
       userRole: UserRole.EMPLOYEE,
       office,
-      isVerified: false,
-      verificationToken,
+      isEmailVerified: true,
+      phoneNumber,
+      password: password || this.generateRandomPassword(),
     });
     await this.entityManager.save(user);
     // Create Employee entity
     const employee = this.entityManager.create(Employee, {
       user,
       office,
+      phoneNumber,
     });
     await this.entityManager.save(employee);
-    // TODO:Mock sending email
-    // TODO:integrate with an email service
-    const verificationLink = `https://ekilie.com/verify?token=${verificationToken}`;
+    // Send email and SMS with password
+    const passwordMsg = `Hi ${name},\n\nYour account for ekiliSync has been created.\n\nThis is your password: ${user.password}\n\nYou can change it in the ekiliSync app.`;
     await this.notificationsService.sendEmail({
       to: email,
-      subject: 'Verify your account',
-      message: `Click here to verify your account: ${verificationLink}`,
+      subject: 'Your ekiliSync account password',
+      message: passwordMsg,
+    });
+    await this.notificationsService.sendSMS({
+      phoneNumber,
+      message: `ekiliSync: Your password is ${user.password}. You can change it in the app.`,
     });
     return {
-      message: 'Employee invited. Verification email sent.',
-      verificationLink,
+      message: 'Employee created and notified with password.',
     };
+  }
+  private generateRandomPassword(): string {
+    // Simple random password generator (8 chars)
+    return Math.random().toString(36).slice(-8);
   }
 
   findAll() {
