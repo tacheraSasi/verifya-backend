@@ -127,7 +127,7 @@ export class EmployeesService {
   }
 
   async create(createEmployeeDto: CreateEmployeeDto) {
-    const { name, email, officeId, phoneNumber, password } = createEmployeeDto;
+    const { name, email, officeId, phoneNumber } = createEmployeeDto;
     // Check if office exists
     const office = await this.entityManager.findOneBy(Office, {
       id: Equal(+officeId),
@@ -144,9 +144,9 @@ export class EmployeesService {
       email,
       userRole: UserRole.EMPLOYEE,
       office,
-      isEmailVerified: true,
+      isVerified: true,
       phoneNumber,
-      password: password || this.generateRandomPassword(),
+      password: this.generateRandomPassword(),
     });
     await this.entityManager.save(user);
     // Create Employee entity

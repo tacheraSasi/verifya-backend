@@ -23,14 +23,6 @@ export class CreateEmployeeDto {
   @IsString()
   phoneNumber: string;
 
-  @ApiProperty({
-    description: 'Password for the employee (admin only, optional)',
-    example: 'StrongPassword123',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  password?: string;
 
   @ApiProperty({
     description: 'Office ID the employee belongs to',
