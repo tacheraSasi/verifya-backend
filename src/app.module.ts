@@ -12,6 +12,7 @@ import { OfficesModule } from './modules/offices/offices.module';
 import { EmployeesModule } from './modules/employees/employees.module';
 import { AttendancesModule } from './modules/attendances/attendances.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { SubscriptionModule } from './subscription/subscription.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     EmployeesModule,
     AttendancesModule,
     NotificationsModule,
+    SubscriptionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
