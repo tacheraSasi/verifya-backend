@@ -6,6 +6,7 @@ import { SubscriptionPlan } from './entities/subscription-plan.entity';
 import { SubscriptionStatus } from './entities/subscription.entity';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
+import { logger } from 'src/common/services/logger.service';
 
 @Injectable()
 export class SubscriptionService {
@@ -14,7 +15,7 @@ export class SubscriptionService {
     private subscriptionRepository: Repository<Subscription>,
     @InjectRepository(SubscriptionPlan)
     private planRepository: Repository<SubscriptionPlan>,
-  ) {} 
+  ) {}
 
   async getActiveSubscription(schoolId: string): Promise<Subscription | null> {
     return this.subscriptionRepository.findOne({
@@ -91,7 +92,7 @@ export class SubscriptionService {
     adminsCount: number;
     employeesCount: number;
   }> {
-
+    logger.log(`Fetching usage for office ID: ${officeId}`);
     return {
       usersCount: 0,
       adminsCount: 0,
@@ -114,13 +115,13 @@ export class SubscriptionService {
     const usage = await this.getUsage(schoolId);
     const exceededLimits: string[] = [];
 
-    if (usage.studentCount > subscription.plan.maxAdmins) {
+    if (usage.adminsCount > subscription.plan.maxAdmins) {
       exceededLimits.push('admins');
     }
-    if (usage.teacherCount > subscription.plan.maxEmployees) {
+    if (usage.employeesCount > subscription.plan.maxEmployees) {
       exceededLimits.push('employees');
     }
-    if (usage.classCount > subscription.plan.maxUsers) {
+    if (usage.usersCount > subscription.plan.maxUsers) {
       exceededLimits.push('users');
     }
 
