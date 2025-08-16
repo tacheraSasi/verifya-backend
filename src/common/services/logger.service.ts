@@ -1,24 +1,31 @@
+import { Logger as NestLogger } from '@nestjs/common';
+
 export class Logger {
-  constructor() {}
-
   private static instance: Logger;
+  private nestLogger: NestLogger;
 
-  static getInstance(): Logger {
+  private constructor(context?: string) {
+    this.nestLogger = new NestLogger(String(context));
+  }
+
+  static getInstance(context?: string): Logger {
     if (!Logger.instance) {
-      Logger.instance = new Logger();
+      Logger.instance = new Logger(context);
     }
     return Logger.instance;
   }
 
-  log(message: string) {
-    console.log(message);
+  log(message: string, context?: string) {
+    this.nestLogger.log(message, context);
   }
 
-  error(message: string) {
-    console.error(message);
+  error(message: string, trace?: string, context?: string) {
+    this.nestLogger.error(message, trace, context);
   }
 
-  warn(message: string) {
-    console.warn(message);
+  warn(message: string, context?: string) {
+    this.nestLogger.warn(message, context);
   }
 }
+
+export const logger = Logger.getInstance();
