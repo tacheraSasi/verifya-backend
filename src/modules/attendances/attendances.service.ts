@@ -52,7 +52,7 @@ export class AttendancesService {
   }
 
   async findOne(id: string) {
-    return this.entityManager.findOne(Attendance, { where: { id } });
+    return this.entityManager.findOne(Attendance, { where: { id: +id } });
   }
 
   async update(id: string, updateAttendanceDto: UpdateAttendanceDto) {
@@ -93,7 +93,7 @@ export class AttendancesService {
   async findOneByOffice(officeId: string, id: string) {
     const officeIdNum = Number(officeId);
     return this.entityManager.findOne(Attendance, {
-      where: { id, office: { id: officeIdNum } },
+      where: { id: +id, office: { id: officeIdNum } },
       relations: ['user', 'office'],
     });
   }
@@ -105,7 +105,7 @@ export class AttendancesService {
   ) {
     const officeIdNum = Number(officeId);
     const attendance = await this.entityManager.findOne(Attendance, {
-      where: { id, office: { id: officeIdNum } },
+      where: { id: +id, office: { id: officeIdNum } },
     });
     if (!attendance) throw new NotFoundException('Attendance not found');
     await this.entityManager.update(Attendance, id, updateAttendanceDto);
@@ -115,7 +115,7 @@ export class AttendancesService {
   async removeForOffice(officeId: string, id: string) {
     const officeIdNum = Number(officeId);
     const attendance = await this.entityManager.findOne(Attendance, {
-      where: { id, office: { id: officeIdNum } },
+      where: { id: +id, office: { id: officeIdNum } },
     });
     if (!attendance) throw new NotFoundException('Attendance not found');
     await this.entityManager.delete(Attendance, id);

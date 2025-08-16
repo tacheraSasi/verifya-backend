@@ -29,7 +29,7 @@ export class NotificationsService {
     'https://api.notify.africa/v2/send-sms';
   private senderId = this.configService.get<string>('senderId');
 
-  private readonly logger = new Logger();
+  private readonly logger = new Logger(NotificationsService.name);
 
   async sendSMS({ phoneNumber, message }: SendSmsDto): Promise<void> {
     const payload = {
@@ -50,7 +50,7 @@ export class NotificationsService {
       this.logger.log(`SMS sent to ${phoneNumber}: ${message}`);
       this.logger.debug(`Response: ${JSON.stringify(response.data)}`);
     } catch (error) {
-      this.logger .error(`Failed to send SMS to ${phoneNumber}:`, error.message);
+      this.logger.error(`Failed to send SMS to ${phoneNumber}:`, error.message);
     }
   }
 

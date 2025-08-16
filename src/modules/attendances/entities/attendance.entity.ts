@@ -1,19 +1,10 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from 'src/modules/users/entities/user.entity';
 import { Office } from 'src/modules/offices/entities/office.entity';
+import { BasicEntity } from 'src/common/entities/base.entity';
 
 @Entity('attendances')
-export class Attendance {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class Attendance extends BasicEntity {
   @ManyToOne(() => User, user => user.attendances, { nullable: false })
   @JoinColumn()
   user: User;
@@ -30,7 +21,4 @@ export class Attendance {
 
   @Column()
   checkinTime: Date;
-
-  @CreateDateColumn()
-  createdAt: Date;
 }
