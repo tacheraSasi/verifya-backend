@@ -39,6 +39,24 @@ export class SubscriptionPlan extends BasicEntity {
   @IsNotEmpty()
   price: number;
 
+  @ApiProperty({ description: 'Maximum number of employees allowed' })
+  @Column('int', { default: 0 })
+  @IsNumber()
+  @IsNotEmpty()
+  maxEmployees: number;
+
+  @ApiProperty({ description: 'Maximum number of users allowed' })
+  @Column('int', { default: 0 })
+  @IsNumber()
+  @IsNotEmpty()
+  maxUsers: number;
+
+  @ApiProperty({ description: 'Maximum number of admins allowed' })
+  @Column('int', { default: 0 })
+  @IsNumber()
+  @IsNotEmpty()
+  maxAdmins: number;
+
   @ApiProperty({ description: 'Maximum number of students allowed' })
   @Column('int', { default: 0 })
   @IsNumber()

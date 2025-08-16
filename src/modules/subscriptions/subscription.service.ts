@@ -114,14 +114,14 @@ export class SubscriptionService {
     const usage = await this.getSchoolUsage(schoolId);
     const exceededLimits: string[] = [];
 
-    if (usage.studentCount > subscription.plan.maxStudents) {
-      exceededLimits.push('students');
+    if (usage.studentCount > subscription.plan.maxAdmins) {
+      exceededLimits.push('admins');
     }
-    if (usage.teacherCount > subscription.plan.maxTeachers) {
-      exceededLimits.push('teachers');
+    if (usage.teacherCount > subscription.plan.maxEmployees) {
+      exceededLimits.push('employees');
     }
-    if (usage.classCount > subscription.plan.maxClasses) {
-      exceededLimits.push('classes');
+    if (usage.classCount > subscription.plan.maxUsers) {
+      exceededLimits.push('users');
     }
 
     return {
