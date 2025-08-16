@@ -29,3 +29,4 @@ export class Logger {
 }
 
 export const logger = Logger.getInstance(); //TODO: Will figure out a way of tracking logs location
+//TODO: will figure out a single way to handle logs across the application
