@@ -76,10 +76,10 @@ export class SubscriptionService {
   }
 
   async checkFeatureAccess(
-    schoolId: string,
+    officeId: string,
     feature: string,
   ): Promise<boolean> {
-    const subscription = await this.getActiveSubscription(schoolId);
+    const subscription = await this.getActiveSubscription(officeId);
     if (!subscription) {
       return false;
     }
