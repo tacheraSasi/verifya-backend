@@ -12,7 +12,7 @@ import { OfficesModule } from './modules/offices/offices.module';
 import { EmployeesModule } from './modules/employees/employees.module';
 import { AttendancesModule } from './modules/attendances/attendances.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
-import { SubscriptionModule } from './subscription/subscription.module';
+import { SubscriptionModule } from 'src/modules/subscriptions/subscription.module';
 
 @Module({
   imports: [
