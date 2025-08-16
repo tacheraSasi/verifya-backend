@@ -1,5 +1,5 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { BaseEntity } from '../../../common/entities/base.entity';
+import { BasicEntity } from '../../../common/entities/base.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, IsDate, IsEnum } from 'class-validator';
 import { SubscriptionPlan } from './subscription-plan.entity';
@@ -12,7 +12,7 @@ export enum SubscriptionStatus {
 }
 
 @Entity('subscriptions')
-export class Subscription extends BaseEntity {
+export class Subscription extends BasicEntity {
   @ApiProperty({
     description:
       'School ID associated with this subscription should be the UID',

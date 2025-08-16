@@ -1,7 +1,7 @@
 import { Entity, Column } from 'typeorm';
-import { BaseEntity } from '../../../common/entities/base.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, IsNumber, IsBoolean } from 'class-validator';
+import { BasicEntity } from 'src/common/entities/base.entity';
 
 export enum PlanType {
   FREE = 'FREE',
@@ -11,7 +11,7 @@ export enum PlanType {
 }
 
 @Entity('subscription_plans')
-export class SubscriptionPlan extends BaseEntity {
+export class SubscriptionPlan extends BasicEntity {
   @ApiProperty({ description: 'Name of the subscription plan' })
   @Column({ length: 255 })
   @IsString()
