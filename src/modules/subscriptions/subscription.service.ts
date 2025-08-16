@@ -14,7 +14,7 @@ export class SubscriptionService {
     private subscriptionRepository: Repository<Subscription>,
     @InjectRepository(SubscriptionPlan)
     private planRepository: Repository<SubscriptionPlan>,
-  ) {}
+  ) {} 
 
   async getActiveSubscription(schoolId: string): Promise<Subscription | null> {
     return this.subscriptionRepository.findOne({
@@ -86,16 +86,16 @@ export class SubscriptionService {
     return subscription.plan.features.includes(feature);
   }
 
-  async getSchoolUsage(schoolId: string): Promise<{
-    studentCount: number;
-    teacherCount: number;
-    classCount: number;
+  async getUsage(officeId: string): Promise<{
+    usersCount: number;
+    adminsCount: number;
+    employeesCount: number;
   }> {
-    // TODO: Implement actual usage counting from other services
+
     return {
-      studentCount: 0,
-      teacherCount: 0,
-      classCount: 0,
+      usersCount: 0,
+      adminsCount: 0,
+      employeesCount: 0,
     };
   }
 
@@ -111,7 +111,7 @@ export class SubscriptionService {
       };
     }
 
-    const usage = await this.getSchoolUsage(schoolId);
+    const usage = await this.getUsage(schoolId);
     const exceededLimits: string[] = [];
 
     if (usage.studentCount > subscription.plan.maxAdmins) {
