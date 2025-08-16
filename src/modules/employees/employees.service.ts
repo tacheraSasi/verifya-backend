@@ -212,7 +212,7 @@ export class EmployeesService {
   async findOneByOffice(officeId: string, id: string) {
     const officeIdNum = Number(officeId);
     return this.entityManager.findOne(Employee, {
-      where: { id, office: { id: officeIdNum } },
+      where: { id: +id, office: { id: officeIdNum } },
       relations: ['user', 'office'],
     });
   }
@@ -224,7 +224,7 @@ export class EmployeesService {
   ) {
     const officeIdNum = Number(officeId);
     const employee = await this.entityManager.findOne(Employee, {
-      where: { id, office: { id: officeIdNum } },
+      where: { id: Number(id), office: { id: officeIdNum } },
     });
     if (!employee) throw new NotFoundException('Employee not found');
     await this.entityManager.update(Employee, id, updateEmployeeDto);
@@ -234,7 +234,7 @@ export class EmployeesService {
   async removeForOffice(officeId: string, id: string) {
     const officeIdNum = Number(officeId);
     const employee = await this.entityManager.findOne(Employee, {
-      where: { id, office: { id: officeIdNum } },
+      where: { id: Number(id), office: { id: officeIdNum } },
     });
     if (!employee) throw new NotFoundException('Employee not found');
     await this.entityManager.delete(Employee, id);
