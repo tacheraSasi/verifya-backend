@@ -57,24 +57,6 @@ export class SubscriptionPlan extends BasicEntity {
   @IsNotEmpty()
   maxAdmins: number;
 
-  @ApiProperty({ description: 'Maximum number of students allowed' })
-  @Column('int', { default: 0 })
-  @IsNumber()
-  @IsNotEmpty()
-  maxStudents: number;
-
-  @ApiProperty({ description: 'Maximum number of teachers allowed' })
-  @Column('int', { default: 0 })
-  @IsNumber()
-  @IsNotEmpty()
-  maxTeachers: number;
-
-  @ApiProperty({ description: 'Maximum number of classes allowed' })
-  @Column('int', { default: 0 })
-  @IsNumber()
-  @IsNotEmpty()
-  maxClasses: number;
-
   @ApiProperty({ description: 'Whether the plan includes advanced analytics' })
   @Column('boolean', { default: false })
   @IsBoolean()
