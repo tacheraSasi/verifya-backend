@@ -36,6 +36,7 @@ export class SeederService {
         await this.entityManager.save(plan);
       }
     }
+    this.logger.log('Finished seeding subscrpition plans');
   }
 
   async #createRoles() {
@@ -50,6 +51,7 @@ export class SeederService {
         await this.entityManager.save(role);
       }
     }
+    this.logger.log('Finished seeding subscrpition plans');
   }
 
   async #createOfficesWithUsers() {
