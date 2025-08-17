@@ -2,9 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { User, UserRole } from 'src/modules/users/entities/user.entity';
 import { Role } from 'src/modules/roles/entities/role.entity';
+
 import { LoggerService } from 'src/lib/logger/logger.service';
 import { Office } from 'src/modules/offices/entities/office.entity';
 import { Employee } from 'src/modules/employees/entities/employee.entity';
+import { SubscriptionPlan } from 'src/modules/subscriptions/entities/subscription-plan.entity';
+import { subscriptionPlansData } from './data/subscription-plans.data';
 
 @Injectable()
 export class SeederService {
@@ -16,8 +19,23 @@ export class SeederService {
   async seed() {
     // Create roles
     await this.#createRoles();
+    // Create subscription plans
+    await this.#createSubscriptionPlans();
     // Create sample offices and users
     await this.#createOfficesWithUsers();
+  }
+
+  async #createSubscriptionPlans() {
+    this.logger.log('Creating subscription plans...');
+    for (const planData of subscriptionPlansData) {
+      const exists = await this.entityManager.findOneBy(SubscriptionPlan, {
+        type: planData.type,
+      });
+      if (!exists) {
+        const plan = this.entityManager.create(SubscriptionPlan, planData);
+        await this.entityManager.save(plan);
+      }
+    }
   }
 
   async #createRoles() {
