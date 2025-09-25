@@ -1,3 +1,5 @@
 export class IAuthUser {
-  authId: number;
+  userId: number;
+  username: string;
+  role: string;
 }
