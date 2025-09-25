@@ -347,12 +347,12 @@ export class EmployeesService {
     const nameParts = user.name.split(' ');
     const firstName = nameParts[0] || '';
     const lastName = nameParts.slice(1).join(' ') || '';
-    
+
     const roleMapping = {
       admin: 'admin' as const,
       employee: 'manager' as const,
     };
-    
+
     const status = user.isVerified ? 'active' : 'invited';
 
     return {
