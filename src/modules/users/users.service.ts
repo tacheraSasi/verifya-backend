@@ -12,6 +12,7 @@ import { User, UserRole } from 'src/modules/users/entities/user.entity';
 import { Office } from 'src/modules/offices/entities/office.entity';
 import * as crypto from 'crypto';
 import { Role } from 'src/modules/roles/entities/role.entity';
+import { SetPasswordDto } from './dto/set-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -189,5 +190,15 @@ export class UsersService {
   async remove(id: string) {
     await this.entityManager.delete(User, id);
     return { message: `User with id ${id} removed` };
+  }
+
+  async setPassword(id: string, setPasswordDto: SetPasswordDto) {
+    const user = await this.findById(id);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    user.password = setPasswordDto.password;
+    await this.entityManager.save(user);
+    return { message: 'Password updated successfully' };
   }
 }

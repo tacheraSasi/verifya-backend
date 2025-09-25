@@ -11,6 +11,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { SetPasswordDto } from './dto/set-password.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth('JWT')
@@ -41,6 +42,11 @@ export class UsersController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
+  }
+
+  @Post(':id/set-password')
+  setPassword(@Param('id') id: string, @Body() setPasswordDto: SetPasswordDto) {
+    return this.usersService.setPassword(id, setPasswordDto);
   }
 
   @Get('office/:officeId')
