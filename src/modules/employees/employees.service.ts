@@ -182,26 +182,35 @@ export class EmployeesService {
       relations: ['office'],
     });
 
-    // Transform entities to plain objects to avoid validation issues
-    return users.map(user => ({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      userRole: user.userRole,
-      phoneNumber: user.phoneNumber,
-      isVerified: user.isVerified,
-      createdAt: user.createdAt,
-      office: user.office
-        ? {
-            id: user.office.id,
-            name: user.office.name,
-            latitude: user.office.latitude,
-            longitude: user.office.longitude,
-            phoneNumber: user.office.phoneNumber,
-            createdAt: user.office.createdAt,
-          }
-        : null,
-    }));
+    // Transform entities to match frontend expectations
+    return users.map(user => {
+      // Split name into firstName and lastName
+      const nameParts = user.name.split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      // Map user role to frontend role enum
+      const roleMapping = {
+        admin: 'admin' as const,
+        employee: 'manager' as const,
+      };
+
+      // Map verification status to frontend status
+      const status = user.isVerified ? 'active' : 'invited';
+
+      return {
+        id: user.id,
+        firstName,
+        lastName,
+        username: user.email.split('@')[0],
+        email: user.email,
+        phoneNumber: user.phoneNumber || '',
+        status: status as 'active' | 'inactive' | 'invited' | 'suspended',
+        role: roleMapping[user.userRole] || ('manager' as const),
+        createdAt: user.createdAt,
+        updatedAt: user.createdAt, // Users don't have updatedAt, using createdAt
+      };
+    });
   }
 
   async findAllByOffice(officeId: string) {
@@ -334,25 +343,29 @@ export class EmployeesService {
       throw new NotFoundException('Employee not found');
     }
 
-    // Transform entity to plain object to avoid validation issues
+    // Transform entity to match frontend expectations
+    const nameParts = user.name.split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+    
+    const roleMapping = {
+      admin: 'admin' as const,
+      employee: 'manager' as const,
+    };
+    
+    const status = user.isVerified ? 'active' : 'invited';
+
     return {
       id: user.id,
-      name: user.name,
+      firstName,
+      lastName,
+      username: user.email.split('@')[0],
       email: user.email,
-      userRole: user.userRole,
-      phoneNumber: user.phoneNumber,
-      isVerified: user.isVerified,
+      phoneNumber: user.phoneNumber || '',
+      status: status as 'active' | 'inactive' | 'invited' | 'suspended',
+      role: roleMapping[user.userRole] || ('manager' as const),
       createdAt: user.createdAt,
-      office: user.office
-        ? {
-            id: user.office.id,
-            name: user.office.name,
-            latitude: user.office.latitude,
-            longitude: user.office.longitude,
-            phoneNumber: user.office.phoneNumber,
-            createdAt: user.office.createdAt,
-          }
-        : null,
+      updatedAt: user.createdAt,
     };
   }
 
