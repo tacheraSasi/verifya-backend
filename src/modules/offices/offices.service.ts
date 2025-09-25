@@ -57,16 +57,55 @@ export class OfficesService {
       throw new NotFoundException(`Office with ID ${officeId} not found`);
     }
 
-    // Count employees in the office
+    // Count total employees in the office
     const employeesCount = await this.entityManager.count(Employee, {
       where: { office: { id: +officeId } },
     });
 
-    // const checkedInCount = await this.entityManager.count(Employee, {
-    //   where: { office: { id: +officeId }, checkedIn: true },
-    // });
+    // Get today's date range
+    const today = new Date();
+    const startOfDay = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+    );
+    const endOfDay = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate() + 1,
+    );
 
-    return { employees: employeesCount, checkedIn: 1, lateCheckedIn: 0 };
+    // Count unique employees who checked in today
+    const checkedInCount = await this.entityManager
+      .createQueryBuilder('attendance', 'a')
+      .where('a.office.id = :officeId', { officeId: +officeId })
+      .andWhere('a.checkinTime >= :startOfDay', { startOfDay })
+      .andWhere('a.checkinTime < :endOfDay', { endOfDay })
+      .select('COUNT(DISTINCT a.user.id)', 'count')
+      .getRawOne();
+
+    // Count late check-ins (assuming late is after 9:00 AM)
+    const lateTime = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+      9,
+      0,
+      0,
+    );
+    const lateCheckedInCount = await this.entityManager
+      .createQueryBuilder('attendance', 'a')
+      .where('a.office.id = :officeId', { officeId: +officeId })
+      .andWhere('a.checkinTime >= :lateTime', { lateTime })
+      .andWhere('a.checkinTime < :endOfDay', { endOfDay })
+      .select('COUNT(DISTINCT a.user.id)', 'count')
+      .getRawOne();
+
+    return {
+      employees: employeesCount,
+      checkedIn: parseInt(checkedInCount?.count || '0'),
+      lateCheckedIn: parseInt(lateCheckedInCount?.count || '0'),
+    };
   }
 
   async findOne(id: string): Promise<Office> {
