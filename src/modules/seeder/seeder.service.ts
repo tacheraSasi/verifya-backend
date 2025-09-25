@@ -64,6 +64,13 @@ export class SeederService {
   async #createOfficesWithUsers() {
     this.logger.log('Creating offices with admins and employees...');
 
+    // Check if seeding has already been done
+    const existingOfficeCount = await this.entityManager.count(Office);
+    if (existingOfficeCount > 0) {
+      this.logger.log('Offices already exist, skipping office seeding...');
+      return;
+    }
+
     const adminRole = await this.entityManager.findOneBy(Role, {
       name: 'Admin',
     });
@@ -162,6 +169,9 @@ export class SeederService {
               office,
             });
             await this.entityManager.save(employeeEntity);
+            this.logger.log(
+              `Created employee entity for user: ${employeeUser.email}`,
+            );
           } catch (error) {
             // Handle duplicate entry error gracefully
             if (error.code === 'ER_DUP_ENTRY') {
@@ -174,11 +184,20 @@ export class SeederService {
                 relations: ['user'],
               });
             } else {
+              this.logger.error(
+                `Failed to create employee entity for user ${employeeUser.email}:`,
+                error,
+              );
               throw error;
             }
           }
+        } else {
+          this.logger.log(
+            `Employee entity already exists for user: ${employeeUser.email}`,
+          );
         }
       }
     }
+    this.logger.log('Finished creating offices with admins and employees');
   }
 }
