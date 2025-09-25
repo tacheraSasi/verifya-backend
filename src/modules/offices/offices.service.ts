@@ -5,6 +5,7 @@ import { EntityManager } from 'typeorm';
 import { Office } from './entities/office.entity';
 import { UsersService } from '../users/users.service';
 import { Employee } from 'src/modules/employees/entities/employee.entity';
+import { Attendance } from '../attendances/entities/attendance.entity';
 
 @Injectable()
 export class OfficesService {
@@ -77,7 +78,7 @@ export class OfficesService {
 
     // Count unique employees who checked in today
     const checkedInCount = await this.entityManager
-      .createQueryBuilder('attendance', 'a')
+      .createQueryBuilder(Attendance, 'a')
       .where('a.office.id = :officeId', { officeId: +officeId })
       .andWhere('a.checkinTime >= :startOfDay', { startOfDay })
       .andWhere('a.checkinTime < :endOfDay', { endOfDay })
@@ -94,7 +95,7 @@ export class OfficesService {
       0,
     );
     const lateCheckedInCount = await this.entityManager
-      .createQueryBuilder('attendance', 'a')
+      .createQueryBuilder(Attendance, 'a')
       .where('a.office.id = :officeId', { officeId: +officeId })
       .andWhere('a.checkinTime >= :lateTime', { lateTime })
       .andWhere('a.checkinTime < :endOfDay', { endOfDay })
