@@ -10,6 +10,7 @@ import {
 import { EmployeesService } from './employees.service';
 import { CreateEmployeeDto, VerifyOtpDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
+import { EmployeeResponseDto } from './dto/employee-response.dto';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -37,7 +38,11 @@ export class EmployeesController {
 
   @Get()
   @ApiOperation({ summary: 'Get all employees' })
-  @ApiResponse({ status: 200, description: 'Returns all employees' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns all employees',
+    type: [EmployeeResponseDto],
+  })
   findAll() {
     return this.employeesService.findAll();
   }
@@ -57,6 +62,7 @@ export class EmployeesController {
   @ApiResponse({
     status: 200,
     description: 'Returns all employees in the specified office',
+    type: [EmployeeResponseDto],
   })
   findAllByOffice(@Param('officeId') officeId: string) {
     return this.employeesService.findAllByOffice(officeId);
@@ -79,7 +85,11 @@ export class EmployeesController {
   @ApiOperation({ summary: 'Get an employee by ID for an office' })
   @ApiParam({ name: 'officeId', type: String, description: 'Office ID' })
   @ApiParam({ name: 'id', type: String, description: 'Employee ID' })
-  @ApiResponse({ status: 200, description: 'Returns the employee' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the employee',
+    type: EmployeeResponseDto,
+  })
   @ApiResponse({ status: 404, description: 'Employee not found' })
   findOneByOffice(
     @Param('officeId') officeId: string,
@@ -123,7 +133,11 @@ export class EmployeesController {
   @Get(':id')
   @ApiOperation({ summary: 'Get an employee by ID' })
   @ApiParam({ name: 'id', type: String, description: 'Employee ID' })
-  @ApiResponse({ status: 200, description: 'Returns the employee' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the employee',
+    type: EmployeeResponseDto,
+  })
   @ApiResponse({ status: 404, description: 'Employee not found' })
   findOne(@Param('id') id: string) {
     return this.employeesService.findOne(id);

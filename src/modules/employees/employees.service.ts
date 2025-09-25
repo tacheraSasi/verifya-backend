@@ -176,17 +176,69 @@ export class EmployeesService {
     return Math.random().toString(36).slice(-8);
   }
 
-  findAll() {
-    return this.entityManager.find(User, {
+  async findAll() {
+    const users = await this.entityManager.find(User, {
       where: { userRole: UserRole.EMPLOYEE },
+      relations: ['office'],
     });
+
+    // Transform entities to plain objects to avoid validation issues
+    return users.map(user => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      userRole: user.userRole,
+      phoneNumber: user.phoneNumber,
+      isVerified: user.isVerified,
+      createdAt: user.createdAt,
+      office: user.office
+        ? {
+            id: user.office.id,
+            name: user.office.name,
+            latitude: user.office.latitude,
+            longitude: user.office.longitude,
+            phoneNumber: user.office.phoneNumber,
+            createdAt: user.office.createdAt,
+          }
+        : null,
+    }));
   }
 
   async findAllByOffice(officeId: string) {
     const officeIdNum = Number(officeId);
-    return this.entityManager.find(Employee, {
+    const employees = await this.entityManager.find(Employee, {
       where: { office: { id: officeIdNum } },
       relations: ['user', 'office'],
+    });
+
+    // Transform entities to match frontend expectations
+    return employees.map(employee => {
+      // Split name into firstName and lastName
+      const nameParts = employee.user.name.split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      // Map user role to frontend role enum
+      const roleMapping = {
+        admin: 'admin' as const,
+        employee: 'manager' as const, // Map employee to manager for frontend
+      };
+
+      // Map verification status to frontend status
+      const status = employee.user.isVerified ? 'active' : 'invited';
+
+      return {
+        id: employee.id.toString(),
+        firstName,
+        lastName,
+        username: employee.user.email.split('@')[0], // Generate username from email
+        email: employee.user.email,
+        phoneNumber: employee.user.phoneNumber || employee.phoneNumber || '',
+        status: status as 'active' | 'inactive' | 'invited' | 'suspended',
+        role: roleMapping[employee.user.userRole] || ('manager' as const),
+        createdAt: employee.createdAt,
+        updatedAt: employee.updatedAt,
+      };
     });
   }
 
@@ -211,10 +263,39 @@ export class EmployeesService {
 
   async findOneByOffice(officeId: string, id: string) {
     const officeIdNum = Number(officeId);
-    return this.entityManager.findOne(Employee, {
+    const employee = await this.entityManager.findOne(Employee, {
       where: { id: +id, office: { id: officeIdNum } },
       relations: ['user', 'office'],
     });
+
+    if (!employee) {
+      throw new NotFoundException('Employee not found');
+    }
+
+    // Transform entity to plain object to avoid validation issues
+    return {
+      id: employee.id,
+      phoneNumber: employee.phoneNumber,
+      createdAt: employee.createdAt,
+      updatedAt: employee.updatedAt,
+      user: {
+        id: employee.user.id,
+        name: employee.user.name,
+        email: employee.user.email,
+        userRole: employee.user.userRole,
+        phoneNumber: employee.user.phoneNumber,
+        isVerified: employee.user.isVerified,
+        createdAt: employee.user.createdAt,
+      },
+      office: {
+        id: employee.office.id,
+        name: employee.office.name,
+        latitude: employee.office.latitude,
+        longitude: employee.office.longitude,
+        phoneNumber: employee.office.phoneNumber,
+        createdAt: employee.office.createdAt,
+      },
+    };
   }
 
   async updateForOffice(
@@ -244,9 +325,35 @@ export class EmployeesService {
   }
 
   async findOne(id: string) {
-    return this.entityManager.findOne(User, {
+    const user = await this.entityManager.findOne(User, {
       where: { id, userRole: UserRole.EMPLOYEE },
+      relations: ['office'],
     });
+
+    if (!user) {
+      throw new NotFoundException('Employee not found');
+    }
+
+    // Transform entity to plain object to avoid validation issues
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      userRole: user.userRole,
+      phoneNumber: user.phoneNumber,
+      isVerified: user.isVerified,
+      createdAt: user.createdAt,
+      office: user.office
+        ? {
+            id: user.office.id,
+            name: user.office.name,
+            latitude: user.office.latitude,
+            longitude: user.office.longitude,
+            phoneNumber: user.office.phoneNumber,
+            createdAt: user.office.createdAt,
+          }
+        : null,
+    };
   }
 
   async update(id: string, updateEmployeeDto: UpdateEmployeeDto) {
