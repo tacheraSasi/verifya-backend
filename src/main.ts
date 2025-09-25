@@ -70,7 +70,7 @@ async function bootstrap() {
 
   SwaggerModule.setup(`${apiPrefix}/docs`, app, document);
 
-  await app.get(SeederService).seed();
+  // await app.get(SeederService).seed();
 
   await app.listen(process.env.PORT || 3000);
 }
