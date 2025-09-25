@@ -18,12 +18,18 @@ export class SeederService {
   ) {}
 
   async seed() {
-    // Create roles
-    await this.#createRoles();
-    // Create subscription plans
-    await this.#createSubscriptionPlans();
-    // Create sample offices and users
-    await this.#createOfficesWithUsers();
+    try {
+      // Create roles
+      await this.#createRoles();
+      // Create subscription plans
+      await this.#createSubscriptionPlans();
+      // Create sample offices and users
+      await this.#createOfficesWithUsers();
+      this.logger.log('Seeding completed successfully');
+    } catch (error) {
+      this.logger.error('Seeding failed:', error);
+      throw error;
+    }
   }
 
   async #createSubscriptionPlans() {
@@ -82,48 +88,95 @@ export class SeederService {
         email: officeData.admin.email,
       });
       if (!adminUser) {
-        adminUser = this.entityManager.create(User, {
-          name: officeData.admin.name,
-          email: officeData.admin.email,
-          password: officeData.admin.password,
-          userRole: UserRole.ADMIN,
-          office,
-          verificationToken: 'seeded-admin-token',
-          isVerified: true,
-          ...(adminRole ? { role: adminRole } : {}),
-        });
-        await this.entityManager.save(adminUser);
+        try {
+          adminUser = this.entityManager.create(User, {
+            name: officeData.admin.name,
+            email: officeData.admin.email,
+            password: officeData.admin.password,
+            userRole: UserRole.ADMIN,
+            office,
+            verificationToken: 'seeded-admin-token',
+            isVerified: true,
+            ...(adminRole ? { role: adminRole } : {}),
+          });
+          await this.entityManager.save(adminUser);
+          this.logger.log(`Created admin user: ${adminUser.email}`);
+        } catch (error) {
+          this.logger.error(
+            `Failed to create admin user ${officeData.admin.email}:`,
+            error,
+          );
+          throw error;
+        }
+      } else {
+        this.logger.log(`Admin user already exists: ${adminUser.email}`);
       }
-      office.admin = adminUser;
-      await this.entityManager.save(office);
+
+      // Update office admin if needed
+      if (office.admin?.id !== adminUser.id) {
+        office.admin = adminUser;
+        await this.entityManager.save(office);
+      }
       // Create employees
       for (const emp of officeData.employees) {
         let employeeUser = await this.entityManager.findOneBy(User, {
           email: emp.email,
         });
         if (!employeeUser) {
-          employeeUser = this.entityManager.create(User, {
-            name: emp.name,
-            email: emp.email,
-            password: emp.password,
-            userRole: UserRole.EMPLOYEE,
-            office,
-            verificationToken: 'seeded-employee-token',
-            isVerified: emp.isVerified,
-            ...(employeeRole ? { role: employeeRole } : {}),
-          });
-          await this.entityManager.save(employeeUser);
+          try {
+            employeeUser = this.entityManager.create(User, {
+              name: emp.name,
+              email: emp.email,
+              password: emp.password,
+              userRole: UserRole.EMPLOYEE,
+              office,
+              verificationToken: 'seeded-employee-token',
+              isVerified: emp.isVerified,
+              ...(employeeRole ? { role: employeeRole } : {}),
+            });
+            await this.entityManager.save(employeeUser);
+            this.logger.log(`Created employee user: ${employeeUser.email}`);
+          } catch (error) {
+            this.logger.error(
+              `Failed to create employee user ${emp.email}:`,
+              error,
+            );
+            throw error;
+          }
+        } else {
+          this.logger.log(
+            `Employee user already exists: ${employeeUser.email}`,
+          );
         }
-        // Create Employee entity
-        let employeeEntity = await this.entityManager.findOneBy(Employee, {
-          user: employeeUser,
+
+        // Create Employee entity - check both by user and by userId to avoid duplicates
+        let employeeEntity = await this.entityManager.findOne(Employee, {
+          where: { user: { id: employeeUser.id } },
+          relations: ['user'],
         });
+
         if (!employeeEntity) {
-          employeeEntity = this.entityManager.create(Employee, {
-            user: employeeUser,
-            office,
-          });
-          await this.entityManager.save(employeeEntity);
+          try {
+            employeeEntity = this.entityManager.create(Employee, {
+              user: employeeUser,
+              office,
+            });
+            await this.entityManager.save(employeeEntity);
+          } catch (error) {
+            // Handle duplicate entry error gracefully
+            if (error.code === 'ER_DUP_ENTRY') {
+              this.logger.warn(
+                `Employee entity already exists for user ${employeeUser.email}, skipping...`,
+              );
+              // Try to fetch the existing entity
+              employeeEntity = await this.entityManager.findOne(Employee, {
+                where: { user: { id: employeeUser.id } },
+                relations: ['user'],
+              });
+            } else {
+              throw error;
+            }
+          }
         }
       }
     }
