@@ -1,63 +1,35 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-
-class UserResponseDto {
-  @ApiProperty({ description: 'User ID' })
-  id: string;
-
-  @ApiProperty({ description: 'User name' })
-  name: string;
-
-  @ApiProperty({ description: 'User email' })
-  email: string;
-
-  @ApiProperty({ description: 'User role' })
-  userRole: string;
-
-  @ApiProperty({ description: 'Phone number' })
-  phoneNumber?: string;
-
-  @ApiProperty({ description: 'Verification status' })
-  isVerified: boolean;
-
-  @ApiProperty({ description: 'Creation date' })
-  createdAt: Date;
-}
-
-class OfficeResponseDto {
-  @ApiProperty({ description: 'Office ID' })
-  id: number;
-
-  @ApiProperty({ description: 'Office name' })
-  name: string;
-
-  @ApiProperty({ description: 'Office latitude' })
-  latitude: number;
-
-  @ApiProperty({ description: 'Office longitude' })
-  longitude: number;
-
-  @ApiProperty({ description: 'Office phone number' })
-  phoneNumber?: string;
-
-  @ApiProperty({ description: 'Creation date' })
-  createdAt: Date;
-}
 
 export class EmployeeResponseDto {
   @ApiProperty({ description: 'Employee ID' })
   id: string;
 
-  @ApiProperty({ description: 'User information', type: UserResponseDto })
-  @Type(() => UserResponseDto)
-  user: UserResponseDto;
+  @ApiProperty({ description: 'First name' })
+  firstName: string;
 
-  @ApiProperty({ description: 'Office information', type: OfficeResponseDto })
-  @Type(() => OfficeResponseDto)
-  office: OfficeResponseDto;
+  @ApiProperty({ description: 'Last name' })
+  lastName: string;
 
-  @ApiProperty({ description: 'Employee phone number' })
-  phoneNumber?: string;
+  @ApiProperty({ description: 'Username' })
+  username: string;
+
+  @ApiProperty({ description: 'Email address' })
+  email: string;
+
+  @ApiProperty({ description: 'Phone number' })
+  phoneNumber: string;
+
+  @ApiProperty({
+    description: 'Employee status',
+    enum: ['active', 'inactive', 'invited', 'suspended'],
+  })
+  status: 'active' | 'inactive' | 'invited' | 'suspended';
+
+  @ApiProperty({
+    description: 'Employee role',
+    enum: ['superadmin', 'admin', 'cashier', 'manager'],
+  })
+  role: 'superadmin' | 'admin' | 'cashier' | 'manager';
 
   @ApiProperty({ description: 'Creation date' })
   createdAt: Date;
