@@ -39,6 +39,7 @@
     "helmet": "^7.1.0",
     "joi": "^17.13.3",
     "mysql": "^2.18.1",
+    "otpx": "^0.0.4",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",

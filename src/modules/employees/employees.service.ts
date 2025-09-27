@@ -13,8 +13,8 @@ import * as crypto from 'crypto';
 import { Employee } from './entities/employee.entity';
 import { Otp } from 'src/modules/auth/entities/otp.entity';
 import { NotificationsService } from '../notifications/notifications.service';
-
 import { JwtService } from '@nestjs/jwt';
+import OTPX from 'otpx';
 
 @Injectable()
 export class EmployeesService {
@@ -123,7 +123,7 @@ export class EmployeesService {
   }
 
   private generateOtp(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+    return OTPX.numeric(4);
   }
 
   async create(createEmployeeDto: CreateEmployeeDto) {
@@ -172,8 +172,7 @@ export class EmployeesService {
     };
   }
   private generateRandomPassword(): string {
-    // Simple random password generator (8 chars)
-    return Math.random().toString(36).slice(-8);
+    return OTPX.alphanumeric(6);
   }
 
   async findAll() {
