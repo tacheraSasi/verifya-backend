@@ -76,7 +76,7 @@ export class NotificationsService {
       );
       console.log(`Ekilie Relay response [${to}]:`, response.data);
     } catch (error) {
-      console.error(`Failed to send email to ${to}:`, error.message);
+      this.logger.error(`Failed to send email to ${to}:`, error.message);
     }
   }
 }
