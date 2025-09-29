@@ -20,8 +20,6 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { Public } from 'src/modules/auth/decorator/public.decorator';
-import { AuthUser } from 'src/modules/auth/decorator/auth-user.decorator';
-import { IAuthUser } from 'src/common/interfaces/auth-user.interface';
 
 @ApiTags('Employees')
 @ApiBearerAuth('JWT')

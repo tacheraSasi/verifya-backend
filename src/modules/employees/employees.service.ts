@@ -32,7 +32,7 @@ export class EmployeesService {
     if (!office) throw new NotFoundException('Office not found');
     // Check if email is already in use
     const existingUser = await this.entityManager.findOneBy(User, {
-      email: Equal(email),
+      email: Equal(email), //TODO:Fix this logic here what if user exists in more than one office
     });
     if (existingUser) throw new BadRequestException('Email already in use');
     // Generate OTP
