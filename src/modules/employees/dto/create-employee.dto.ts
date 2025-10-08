@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsEmail, IsUUID, IsString } from 'class-validator';
+import { IsNotEmpty, IsEmail, IsString } from 'class-validator';
 
 export class CreateEmployeeDto {
   @ApiProperty({ description: 'Name of the employee', example: 'Jane Doe' })
@@ -25,10 +25,10 @@ export class CreateEmployeeDto {
 
   @ApiProperty({
     description: 'Office ID the employee belongs to',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    example: '1',
   })
   @IsNotEmpty()
-  @IsUUID()
+  @IsString()
   officeId: string;
 }
 

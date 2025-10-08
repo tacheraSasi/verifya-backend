@@ -72,7 +72,7 @@ export class EmployeesService {
     });
     await this.notificationsService.sendSMS({
       phoneNumber,
-      message: `ekiliSync: Your OTP is ${otpCode}. It expires in 10 minutes.`,
+      message: `Welcome to ekiliSync! You've been invited to join ${office.name}. Your verification code is ${otpCode}. This code expires in 10 minutes. Please enter it to complete your registration.`,
     });
     return { message: 'Invitation sent via email and SMS.' };
   }
