@@ -39,6 +39,12 @@ export class EmployeesController {
     return this.employeesService.inviteEmployee(createEmployeeDto);
   }
 
+  @Post('re-invite/:id')
+  @ApiOperation({ summary: 'Re-invite an employee (admin only)' })
+  reInvite(@Param('id') id: string) {
+    return this.employeesService.reInviteEmployee(id);
+  }
+
   @Get()
   @ApiOperation({ summary: 'Get all employees' })
   @ApiResponse({

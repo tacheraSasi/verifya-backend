@@ -77,6 +77,43 @@ export class EmployeesService {
     return { message: 'Invitation sent via email and SMS.' };
   }
 
+  async reInviteEmployee(id: string) {
+    const employee = await this.entityManager.findOne(Employee, {
+      where: { id: Number(id) },
+      relations: ['user', 'office'],
+    });
+    if (!employee) throw new NotFoundException('Employee not found');
+    const user = employee.user;
+    const office = employee.office;
+    if (user.isVerified) {
+      throw new BadRequestException('Employee is already verified');
+    }
+
+    const otpCode = this.generateOtp();
+    const otpExpires = new Date(Date.now() + 1000 * 60 * 10); // 10 min
+    const otpEntity = this.entityManager.create(Otp, {
+      code: otpCode,
+      expiresAt: otpExpires,
+      user,
+      userId: user.id,
+    });
+    await this.entityManager.save(otpEntity);
+    // Send email and SMS
+    const message = `Hi ${user.name},\n\nYou have been re-invited to join ${office.name} on ekiliSync!\n\nYour new OTP is: ${otpCode}\n\nThis OTP is valid for 10 minutes.\n\nWelcome back!`;
+    await this.notificationsService.sendEmail({
+      to: user.email,
+      subject: 'You are re-invited to ekiliSync',
+      message,
+    });
+    if (user.phoneNumber) {
+      await this.notificationsService.sendSMS({
+        phoneNumber: user.phoneNumber,
+        message: `Welcome back to ekiliSync! You've been re-invited to join ${office.name}. Your new verification code is ${otpCode}. This code expires in 10 minutes. Please enter it to complete your registration.`,
+      });
+    }
+    return { message: 'Re-invitation sent via email and SMS.' };
+  }
+
   async verifyOtp(email: string, otp: string) {
     // Find user by email
     const user = await this.entityManager.findOne(User, {
@@ -84,6 +121,8 @@ export class EmployeesService {
       relations: ['office'],
     });
     if (!user) throw new NotFoundException('User not found');
+    if (user.isVerified) throw new BadRequestException('User already verified');
+
     // Find latest OTP for user
     const otpEntity = await this.entityManager.findOne(Otp, {
       where: { user: { id: user.id }, code: otp },
@@ -94,7 +133,9 @@ export class EmployeesService {
       throw new BadRequestException('OTP expired');
     // Mark as verified
     user.isVerified = true;
+
     await this.entityManager.save(user);
+
     // Issue JWT
     const payload = {
       email: user.email,
