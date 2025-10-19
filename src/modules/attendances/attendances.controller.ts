@@ -47,8 +47,14 @@ export class AttendancesController {
   }
 
   @Post('office/:officeId')
-  createForOffice(@Param('officeId') officeId: string, @Body() createAttendanceDto: CreateAttendanceDto) {
-    return this.attendancesService.createForOffice(officeId, createAttendanceDto);
+  createForOffice(
+    @Param('officeId') officeId: string,
+    @Body() createAttendanceDto: CreateAttendanceDto,
+  ) {
+    return this.attendancesService.createForOffice(
+      officeId,
+      createAttendanceDto,
+    );
   }
 
   @Get(':id')
@@ -61,7 +67,10 @@ export class AttendancesController {
   }
 
   @Get('office/:officeId/:id')
-  findOneByOffice(@Param('officeId') officeId: string, @Param('id') id: string) {
+  findOneByOffice(
+    @Param('officeId') officeId: string,
+    @Param('id') id: string,
+  ) {
     return this.attendancesService.findOneByOffice(officeId, id);
   }
 
@@ -101,7 +110,10 @@ export class AttendancesController {
   }
 
   @Delete('office/:officeId/:id')
-  removeForOffice(@Param('officeId') officeId: string, @Param('id') id: string) {
+  removeForOffice(
+    @Param('officeId') officeId: string,
+    @Param('id') id: string,
+  ) {
     return this.attendancesService.removeForOffice(officeId, id);
   }
 }

@@ -46,7 +46,7 @@ export class ExcelInterceptor implements NestInterceptor {
       }
 
       const rows: Record<string, string>[] = [];
-      let headers: string[] = [];
+      const headers: string[] = [];
 
       console.debug('Processing worksheet:', worksheet.name);
 
