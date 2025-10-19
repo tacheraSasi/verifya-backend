@@ -138,7 +138,9 @@ export class UsersService {
     });
     if (!user) throw new NotFoundException('User not found');
     await this.entityManager.update(User, id, updateUserDto);
-    return this.findOneByOffice(officeId, id);
+  const updatedUser = await this.findOneByOffice(officeId, id);
+  // return a plain object so response validation (which expects DTOs) is skipped
+  return updatedUser ? JSON.parse(JSON.stringify(updatedUser)) : updatedUser;
   }
 
   async removeForOffice(officeId: string, id: string) {
@@ -184,7 +186,9 @@ export class UsersService {
 
   async update(id: string, updateUserDto: UpdateUserDto) {
     await this.entityManager.update(User, id, updateUserDto);
-    return this.findById(id);
+  const updatedUser = await this.findById(id);
+  // return a plain object so response validation (which expects DTOs) is skipped
+  return updatedUser ? JSON.parse(JSON.stringify(updatedUser)) : updatedUser;
   }
 
   async remove(id: string) {

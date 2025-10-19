@@ -36,7 +36,9 @@ export class UsersController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+    return this.usersService
+      .update(id, updateUserDto)
+      .then(user => (user ? JSON.parse(JSON.stringify(user)) : user));
   }
 
   @Delete(':id')
@@ -76,7 +78,9 @@ export class UsersController {
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.usersService.updateForOffice(officeId, id, updateUserDto);
+    return this.usersService
+      .updateForOffice(officeId, id, updateUserDto)
+      .then(user => (user ? JSON.parse(JSON.stringify(user)) : user));
   }
 
   @Delete('office/:officeId/:id')
