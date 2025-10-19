@@ -55,22 +55,35 @@ export class UsersController {
   }
 
   @Post('office/:officeId')
-  createForOffice(@Param('officeId') officeId: string, @Body() createUserDto: CreateUserDto) {
+  createForOffice(
+    @Param('officeId') officeId: string,
+    @Body() createUserDto: CreateUserDto,
+  ) {
     return this.usersService.createForOffice(officeId, createUserDto);
   }
 
   @Get('office/:officeId/:id')
-  findOneByOffice(@Param('officeId') officeId: string, @Param('id') id: string) {
+  findOneByOffice(
+    @Param('officeId') officeId: string,
+    @Param('id') id: string,
+  ) {
     return this.usersService.findOneByOffice(officeId, id);
   }
 
   @Patch('office/:officeId/:id')
-  updateForOffice(@Param('officeId') officeId: string, @Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  updateForOffice(
+    @Param('officeId') officeId: string,
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
     return this.usersService.updateForOffice(officeId, id, updateUserDto);
   }
 
   @Delete('office/:officeId/:id')
-  removeForOffice(@Param('officeId') officeId: string, @Param('id') id: string) {
+  removeForOffice(
+    @Param('officeId') officeId: string,
+    @Param('id') id: string,
+  ) {
     return this.usersService.removeForOffice(officeId, id);
   }
 }
