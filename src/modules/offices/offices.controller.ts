@@ -105,8 +105,18 @@ export class OfficesController {
   async updateLocation(
     @Param('id') id: string,
     @Body() updateOfficeDto: UpdateOfficeDto,
-  ): Promise<Office> {
-    return this.officesService.update(id, updateOfficeDto);
+  ): Promise<Partial<Office>> {
+    if (
+      typeof updateOfficeDto.latitude !== 'number' ||
+      typeof updateOfficeDto.longitude !== 'number'
+    ) {
+      throw new Error('Latitude and longitude must be provided');
+    }
+    return this.officesService.updateLocation(
+      id,
+      updateOfficeDto.latitude,
+      updateOfficeDto.longitude,
+    );
   }
 
   @Delete(':id')
