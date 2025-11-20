@@ -92,6 +92,23 @@ export class OfficesController {
     return this.officesService.update(id, updateOfficeDto);
   }
 
+  @Patch('update-location/:id')
+  @ApiOperation({ summary: 'Update an office' })
+  @ApiResponse({
+    status: 200,
+    description: 'Office successfully updated',
+    type: Office,
+  })
+  @ApiResponse({ status: 404, description: 'Office not found' })
+  @Roles('admin')
+  @UseGuards(RolesGuard)
+  async updateLocation(
+    @Param('id') id: string,
+    @Body() updateOfficeDto: UpdateOfficeDto,
+  ): Promise<Office> {
+    return this.officesService.update(id, updateOfficeDto);
+  }
+
   @Delete(':id')
   @ApiOperation({ summary: 'Delete an office' })
   @ApiResponse({ status: 204, description: 'Office successfully deleted' })
