@@ -8,6 +8,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import { AttendancesService } from './attendances.service';
+import { Query } from '@nestjs/common';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import {
@@ -42,8 +43,18 @@ export class AttendancesController {
   }
 
   @Get('office/:officeId')
-  findAllByOffice(@Param('officeId') officeId: string) {
-    return this.attendancesService.findAllByOffice(officeId);
+  findAllByOffice(
+    @Param('officeId') officeId: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+    @Query('limit') limit?: number,
+  ) {
+    return this.attendancesService.findAllByOffice(
+      officeId,
+      startDate,
+      endDate,
+      limit,
+    );
   }
 
   @Post('office/:officeId')

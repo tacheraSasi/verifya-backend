@@ -3,7 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { EntityManager } from 'typeorm';
+import { EntityManager, Between } from 'typeorm';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { AttendanceDto } from './dto/attendance.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
@@ -94,11 +94,21 @@ export class AttendancesService {
     return this.entityManager.delete(Attendance, id);
   }
 
-  async findAllByOffice(officeId: string) {
+  async findAllByOffice(
+    officeId: string,
+    startDate?: string,
+    endDate?: string,
+    limit?: number,
+  ) {
     const officeIdNum = Number(officeId);
+    const where: any = { office: { id: officeIdNum } };
+    if (startDate && endDate) {
+      where.checkinTime = Between(new Date(startDate), new Date(endDate));
+    }
     const attendances = await this.entityManager.find(Attendance, {
-      where: { office: { id: officeIdNum } },
+      where,
       relations: { user: true, office: true },
+      // take: limit || 100,
     });
     const result = await Promise.all(
       attendances.map(async saved => {
@@ -127,6 +137,7 @@ export class AttendancesService {
           checkinLatitude: saved.checkinLatitude,
           checkinLongitude: saved.checkinLongitude,
           checkinTime: saved.checkinTime,
+          checkOutTime: saved.checkOutTime,
         };
       }),
     );
