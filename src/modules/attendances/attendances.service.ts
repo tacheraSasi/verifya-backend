@@ -98,30 +98,39 @@ export class AttendancesService {
     const officeIdNum = Number(officeId);
     const attendances = await this.entityManager.find(Attendance, {
       where: { office: { id: officeIdNum } },
-      relations: ['user', 'office'],
+      relations: { user: true, office: true },
     });
-    return attendances.map(saved => ({
-      id: saved.id,
-      user: saved.user
-        ? {
-            id: saved.user.id,
-            name: saved.user.name,
-            email: saved.user.email,
-            userRole: saved.user.userRole,
-          }
-        : {},
-      office: saved.office
-        ? {
-            id: saved.office.id,
-            name: saved.office.name,
-            latitude: saved.office.latitude,
-            longitude: saved.office.longitude,
-          }
-        : {},
-      checkinLatitude: saved.checkinLatitude,
-      checkinLongitude: saved.checkinLongitude,
-      checkinTime: saved.checkinTime,
-    }));
+    const result = await Promise.all(
+      attendances.map(async saved => {
+        const employee = await this.entityManager.findOne(Employee, {
+          where: { user: { id: saved.user?.id } },
+        });
+        return {
+          id: saved.id,
+          employeeId: employee ? employee.id : null,
+          user: saved.user
+            ? {
+                id: saved.user.id,
+                name: saved.user.name,
+                email: saved.user.email,
+                userRole: saved.user.userRole,
+              }
+            : {},
+          office: saved.office
+            ? {
+                id: saved.office.id,
+                name: saved.office.name,
+                latitude: saved.office.latitude,
+                longitude: saved.office.longitude,
+              }
+            : {},
+          checkinLatitude: saved.checkinLatitude,
+          checkinLongitude: saved.checkinLongitude,
+          checkinTime: saved.checkinTime,
+        };
+      }),
+    );
+    return result;
   }
 
   async createForOffice(
