@@ -5,12 +5,13 @@ import {
 } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
+import { AttendanceDto } from './dto/attendance.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import { Attendance } from './entities/attendance.entity';
-import { User } from 'src/modules/users/entities/user.entity';
 import { Office } from 'src/modules/offices/entities/office.entity';
 import { isWithinDistance } from 'src/utils/haversine.util';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import { Employee } from 'src/modules/employees/entities/employee.entity';
 
 @Injectable()
 export class AttendancesService {
@@ -18,12 +19,13 @@ export class AttendancesService {
 
   async create(createAttendanceDto: CreateAttendanceDto) {
     const { userId, officeId, latitude, longitude } = createAttendanceDto;
-    const user = await this.entityManager.findOne(User, {
-      where: { id: userId },
+    const employee = await this.entityManager.findOne(Employee, {
+      where: { id: Number(userId) },
+      relations: ['user'],
     });
-    if (!user) throw new NotFoundException('User not found');
+    if (!employee) throw new NotFoundException('Employee not found');
     const office = await this.entityManager.findOne(Office, {
-      where: { id: officeId as any },
+      where: { id: Number(officeId) },
     });
     if (!office) throw new NotFoundException('Office not found');
 
@@ -38,13 +40,39 @@ export class AttendancesService {
     }
 
     const attendance = this.entityManager.create(Attendance, {
-      user,
+      user: employee.user,
       office,
       checkinLatitude: latitude,
       checkinLongitude: longitude,
       checkinTime: new Date(),
     });
-    return this.entityManager.save(attendance);
+    console.log('Created attendance entity:', attendance);
+    const saved = await this.entityManager.save(attendance);
+    const dto: AttendanceDto = {
+      id: saved.id,
+      user: saved.user
+        ? {
+            id: saved.user.id,
+            name: saved.user.name,
+            email: saved.user.email,
+            userRole: saved.user.userRole,
+          }
+        : {},
+      office: saved.office
+        ? {
+            id: saved.office.id,
+            name: saved.office.name,
+            latitude: saved.office.latitude,
+            longitude: saved.office.longitude,
+          }
+        : {},
+      checkinLatitude: saved.checkinLatitude,
+      checkinLongitude: saved.checkinLongitude,
+      checkinTime: saved.checkinTime,
+    };
+
+    console.log('Created attendance dto:', dto);
+    return dto;
   }
 
   async findAll() {
@@ -68,10 +96,32 @@ export class AttendancesService {
 
   async findAllByOffice(officeId: string) {
     const officeIdNum = Number(officeId);
-    return this.entityManager.find(Attendance, {
+    const attendances = await this.entityManager.find(Attendance, {
       where: { office: { id: officeIdNum } },
       relations: ['user', 'office'],
     });
+    return attendances.map(saved => ({
+      id: saved.id,
+      user: saved.user
+        ? {
+            id: saved.user.id,
+            name: saved.user.name,
+            email: saved.user.email,
+            userRole: saved.user.userRole,
+          }
+        : {},
+      office: saved.office
+        ? {
+            id: saved.office.id,
+            name: saved.office.name,
+            latitude: saved.office.latitude,
+            longitude: saved.office.longitude,
+          }
+        : {},
+      checkinLatitude: saved.checkinLatitude,
+      checkinLongitude: saved.checkinLongitude,
+      checkinTime: saved.checkinTime,
+    }));
   }
 
   async createForOffice(

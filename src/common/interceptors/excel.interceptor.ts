@@ -36,7 +36,7 @@ export class ExcelInterceptor implements NestInterceptor {
 
     try {
       const workbook = new ExcelJS.Workbook();
-      await workbook.xlsx.load(file.buffer);
+      // await workbook.xlsx.load(Buffer.from([...file.buffer]));
 
       const worksheet = workbook.worksheets[0];
       if (!worksheet) {

@@ -1,19 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUUID, IsNumber, IsLatitude, IsLongitude } from 'class-validator';
+import { IsNumber, IsLatitude, IsLongitude, IsString } from 'class-validator';
 
 export class CreateAttendanceDto {
   @ApiProperty({
     description: 'User ID of the employee checking in',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
-  @IsUUID()
+  @IsString()
   userId: string;
 
   @ApiProperty({
     description: 'Office ID where the check-in is happening',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
-  @IsUUID()
+  @IsString()
   officeId: string;
 
   @ApiProperty({

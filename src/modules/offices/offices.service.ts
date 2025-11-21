@@ -6,6 +6,7 @@ import { Office } from './entities/office.entity';
 import { UsersService } from '../users/users.service';
 import { Employee } from 'src/modules/employees/entities/employee.entity';
 import { Attendance } from '../attendances/entities/attendance.entity';
+import { ExcludeFromObject } from 'src/common/dto/sanitize-response.dto';
 
 @Injectable()
 export class OfficesService {
@@ -118,16 +119,30 @@ export class OfficesService {
     }
     return office;
   }
+  async updateLocation(
+    id: string,
+    latitude: number,
+    longitude: number,
+  ): Promise<Partial<Office>> {
+    const office = await this.findOne(id);
+    office.latitude = latitude;
+    office.longitude = longitude;
+    await this.entityManager.save(office);
+    const updatedOffice = await this.findOne(id);
+    return ExcludeFromObject(updatedOffice, ['admin']);
+  }
 
   async update(id: string, updateOfficeDto: UpdateOfficeDto): Promise<Office> {
     const office = await this.findOne(id);
 
-    // Update office properties
     if (updateOfficeDto.name) office.name = updateOfficeDto.name;
-    if (updateOfficeDto.latitude) office.latitude = updateOfficeDto.latitude;
-    if (updateOfficeDto.longitude) office.longitude = updateOfficeDto.longitude;
+    if (updateOfficeDto.latitude !== undefined)
+      office.latitude = updateOfficeDto.latitude;
+    if (updateOfficeDto.longitude !== undefined)
+      office.longitude = updateOfficeDto.longitude;
 
-    return this.entityManager.save(office);
+    await this.entityManager.save(office);
+    return await this.findOne(id);
   }
 
   async remove(id: string): Promise<void> {
