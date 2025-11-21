@@ -48,9 +48,8 @@ export class AttendancesService {
     });
     console.log('Created attendance entity:', attendance);
     const saved = await this.entityManager.save(attendance);
-    // Map to AttendanceDto
     const dto: AttendanceDto = {
-      id: saved.id, // Attendance entity uses string for id
+      id: saved.id,
       user: saved.user
         ? {
             id: saved.user.id,
