@@ -16,7 +16,6 @@ export class OfficesService {
   ) {}
 
   async create(createOfficeDto: CreateOfficeDto): Promise<Office> {
-    // Create the office
     const office = this.entityManager.create(Office, {
       name: createOfficeDto.name,
       latitude: createOfficeDto.latitude ?? null,
@@ -27,7 +26,6 @@ export class OfficesService {
     // Save the office to get an ID
     const savedOffice = await this.entityManager.save(office);
 
-    // Create an admin user for the office using provided name, email, and password
     const adminEmail =
       createOfficeDto.adminEmail ||
       `admin_${createOfficeDto.name.toLowerCase().replace(/\s+/g, '_')}@ekilie.com`;
@@ -41,9 +39,29 @@ export class OfficesService {
       createOfficeDto.phoneNumber,
     );
 
-    // Update the office with the admin user
     savedOffice.admin = adminUser.user;
     await this.entityManager.save(savedOffice);
+
+    const subscriptionPlanRepo =
+      this.entityManager.getRepository('SubscriptionPlan');
+    const freePlan = await subscriptionPlanRepo.findOne({
+      where: { type: 'FREE' },
+    });
+    if (freePlan) {
+      const subscriptionRepo = this.entityManager.getRepository('Subscription');
+      const now = new Date();
+      const nextYear = new Date(now);
+      nextYear.setFullYear(now.getFullYear() + 1);
+      const freeSubscription = subscriptionRepo.create({
+        office: savedOffice,
+        plan: freePlan,
+        startDate: now,
+        endDate: nextYear,
+        status: 'ACTIVE',
+        autoRenew: true,
+      });
+      await subscriptionRepo.save(freeSubscription);
+    }
 
     return savedOffice;
   }
