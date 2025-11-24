@@ -100,7 +100,7 @@ export class UsersService {
     return await this.entityManager.find(User);
   }
 
-  async me(authUser: IAuthUser) {
+  async me(authUser: IAuthUser): Promise<Partial<User>> {
     const user = await this.findByEmail(String(authUser.email));
     if (!user) {
       throw new NotFoundException('User not found');

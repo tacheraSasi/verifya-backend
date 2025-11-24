@@ -27,8 +27,8 @@ export class UsersController {
   }
 
   @Get('me')
-  async findAll(@AuthUser() authUser: IAuthUser) {
-    return this.usersService.me(authUser);
+  async me(@AuthUser() authUser: IAuthUser) {
+    return await this.usersService.me(authUser);
   }
 
   @Get(':id')
