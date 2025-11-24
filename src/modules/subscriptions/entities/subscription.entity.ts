@@ -1,7 +1,8 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Office } from 'src/modules/offices/entities/office.entity';
 import { BasicEntity } from '../../../common/entities/base.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsDate, IsEnum } from 'class-validator';
+import { IsString, IsDate, IsEnum } from 'class-validator';
 import { SubscriptionPlan } from './subscription-plan.entity';
 
 export enum SubscriptionStatus {
@@ -13,14 +14,10 @@ export enum SubscriptionStatus {
 
 @Entity('subscriptions')
 export class Subscription extends BasicEntity {
-  @ApiProperty({
-    description:
-      'School ID associated with this subscription should be the UID',
-  })
-  @Column()
-  @IsString()
-  @IsNotEmpty()
-  officeId: string;
+  @ApiProperty({ description: 'Office associated with this subscription' })
+  @ManyToOne(() => Office, office => office.id)
+  @JoinColumn()
+  office: Office;
 
   @ApiProperty({ description: 'Subscription plan' })
   @ManyToOne(() => SubscriptionPlan)

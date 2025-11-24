@@ -20,10 +20,10 @@ export class SubscriptionService {
   async getActiveSubscription(officeId: string): Promise<Subscription | null> {
     return this.subscriptionRepository.findOne({
       where: {
-        officeId: officeId,
+        office: { id: +officeId },
         status: SubscriptionStatus.ACTIVE,
       },
-      relations: ['plan'],
+      relations: ['plan', 'office'],
     });
   }
 
@@ -36,19 +36,22 @@ export class SubscriptionService {
     const plan = await this.planRepository.findOne({
       where: { id: +planId },
     });
-
     if (!plan) {
       throw new NotFoundException('Subscription plan not found');
     }
-
+    const office = await this.subscriptionRepository.manager.findOne('Office', {
+      where: { id: +officeId },
+    });
+    if (!office) {
+      throw new NotFoundException('Office not found');
+    }
     const subscription = this.subscriptionRepository.create({
-      officeId: officeId,
+      office,
       plan,
       startDate,
       endDate,
       status: SubscriptionStatus.ACTIVE,
     });
-
     return this.subscriptionRepository.save(subscription);
   }
 
@@ -83,7 +86,6 @@ export class SubscriptionService {
     if (!subscription) {
       return false;
     }
-
     return subscription.plan.features.includes(feature);
   }
 
@@ -93,6 +95,7 @@ export class SubscriptionService {
     employeesCount: number;
   }> {
     logger.log(`Fetching usage for office ID: ${officeId}`);
+    // You should update this to actually count users/admins/employees for the office entity
     return {
       usersCount: 0,
       adminsCount: 0,
