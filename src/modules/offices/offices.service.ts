@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { CreateOfficeDto } from './dto/create-office.dto';
 import { UpdateOfficeDto } from './dto/update-office.dto';
 import { EntityManager } from 'typeorm';
@@ -7,12 +12,15 @@ import { UsersService } from '../users/users.service';
 import { Employee } from 'src/modules/employees/entities/employee.entity';
 import { Attendance } from '../attendances/entities/attendance.entity';
 import { ExcludeFromObject } from 'src/common/dto/sanitize-response.dto';
+import { SubscriptionService } from '../subscriptions/subscription.service';
 
 @Injectable()
 export class OfficesService {
   constructor(
     private readonly entityManager: EntityManager,
     private readonly usersService: UsersService,
+    @Inject(forwardRef(() => SubscriptionService))
+    private readonly subscriptionService: SubscriptionService,
   ) {}
 
   async create(createOfficeDto: CreateOfficeDto): Promise<Office> {
@@ -42,25 +50,18 @@ export class OfficesService {
     savedOffice.admin = adminUser.user;
     await this.entityManager.save(savedOffice);
 
-    const subscriptionPlanRepo =
-      this.entityManager.getRepository('SubscriptionPlan');
-    const freePlan = await subscriptionPlanRepo.findOne({
-      where: { type: 'FREE' },
-    });
+    // Create a free subscription for the office using SubscriptionService
+    const freePlan = await this.subscriptionService.getDefaultPlan();
     if (freePlan) {
-      const subscriptionRepo = this.entityManager.getRepository('Subscription');
       const now = new Date();
       const nextYear = new Date(now);
       nextYear.setFullYear(now.getFullYear() + 1);
-      const freeSubscription = subscriptionRepo.create({
-        office: savedOffice,
-        plan: freePlan,
-        startDate: now,
-        endDate: nextYear,
-        status: 'ACTIVE',
-        autoRenew: true,
-      });
-      await subscriptionRepo.save(freeSubscription);
+      await this.subscriptionService.createSubscription(
+        savedOffice.id.toString(),
+        freePlan.id.toString(),
+        now,
+        nextYear,
+      );
     }
 
     return savedOffice;
