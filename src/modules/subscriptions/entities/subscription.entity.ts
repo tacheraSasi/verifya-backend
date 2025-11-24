@@ -20,7 +20,7 @@ export class Subscription extends BasicEntity {
   @Column()
   @IsString()
   @IsNotEmpty()
-  schoolId: string;
+  officeId: string;
 
   @ApiProperty({ description: 'Subscription plan' })
   @ManyToOne(() => SubscriptionPlan)

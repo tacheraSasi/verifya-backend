@@ -30,14 +30,14 @@ export class SubscriptionGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
-    const schoolId = request.user?.schoolId;
+    const officeId = request.user?.officeId;
 
-    if (!schoolId) {
+    if (!officeId) {
       throw new ForbiddenException('School ID not found in request');
     }
 
     const subscription =
-      await this.subscriptionService.getActiveSubscription(schoolId);
+      await this.subscriptionService.getActiveSubscription(officeId);
 
     if (!subscription) {
       throw new ForbiddenException(

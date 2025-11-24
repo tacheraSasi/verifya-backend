@@ -17,10 +17,10 @@ export class SubscriptionService {
     private planRepository: Repository<SubscriptionPlan>,
   ) {}
 
-  async getActiveSubscription(schoolId: string): Promise<Subscription | null> {
+  async getActiveSubscription(officeId: string): Promise<Subscription | null> {
     return this.subscriptionRepository.findOne({
       where: {
-        schoolId,
+        officeId: officeId,
         status: SubscriptionStatus.ACTIVE,
       },
       relations: ['plan'],
@@ -28,7 +28,7 @@ export class SubscriptionService {
   }
 
   async createSubscription(
-    schoolId: string,
+    officeId: string,
     planId: string,
     startDate: Date,
     endDate: Date,
@@ -42,7 +42,7 @@ export class SubscriptionService {
     }
 
     const subscription = this.subscriptionRepository.create({
-      schoolId,
+      officeId: officeId,
       plan,
       startDate,
       endDate,
@@ -100,11 +100,11 @@ export class SubscriptionService {
     };
   }
 
-  async checkUsageLimits(schoolId: string): Promise<{
+  async checkUsageLimits(officeId: string): Promise<{
     isWithinLimits: boolean;
     exceededLimits: string[];
   }> {
-    const subscription = await this.getActiveSubscription(schoolId);
+    const subscription = await this.getActiveSubscription(officeId);
     if (!subscription) {
       return {
         isWithinLimits: false,
@@ -112,7 +112,7 @@ export class SubscriptionService {
       };
     }
 
-    const usage = await this.getUsage(schoolId);
+    const usage = await this.getUsage(officeId);
     const exceededLimits: string[] = [];
 
     if (usage.adminsCount > subscription.plan.maxAdmins) {
