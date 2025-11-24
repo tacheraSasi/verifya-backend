@@ -12,6 +12,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SetPasswordDto } from './dto/set-password.dto';
+import { AuthUser } from 'src/modules/auth/decorator/auth-user.decorator';
+import { IAuthUser } from 'src/modules/auth/interfaces/auth-user.interface';
 
 @ApiTags('Users')
 @ApiBearerAuth('JWT')
@@ -24,10 +26,10 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  // @Get()
-  // async findAll() {
-  //   return this.usersService.findAll();
-  // }
+  @Get('me')
+  async findAll(@AuthUser() authUser: IAuthUser) {
+    return this.usersService.me(authUser);
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {

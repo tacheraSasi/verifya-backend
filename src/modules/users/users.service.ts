@@ -13,6 +13,8 @@ import { Office } from 'src/modules/offices/entities/office.entity';
 import * as crypto from 'crypto';
 import { Role } from 'src/modules/roles/entities/role.entity';
 import { SetPasswordDto } from './dto/set-password.dto';
+import { IAuthUser } from 'src/modules/auth/interfaces/auth-user.interface';
+import { ExcludeFromObject } from 'src/common/dto/sanitize-response.dto';
 
 @Injectable()
 export class UsersService {
@@ -98,6 +100,14 @@ export class UsersService {
     return await this.entityManager.find(User);
   }
 
+  async me(authUser: IAuthUser) {
+    const user = await this.findByEmail(String(authUser.email));
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return ExcludeFromObject(user, ['password', 'verificationToken']);
+  }
+
   async findAllByOffice(officeId: string) {
     const officeIdNum = Number(officeId);
     return this.entityManager.find(User, {
@@ -153,10 +163,6 @@ export class UsersService {
     return {
       message: `User with id ${id} removed from office ${officeId}`,
     };
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
   }
 
   async findByEmail(email: string) {

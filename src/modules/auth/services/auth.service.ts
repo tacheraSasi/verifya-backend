@@ -11,6 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { OfficesService } from 'src/modules/offices/offices.service';
 import { NotificationsService } from 'src/modules/notifications/notifications.service';
+import { ExcludeFromObject } from 'src/common/dto/sanitize-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -26,10 +27,7 @@ export class AuthService {
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
     if (user && (await user.verifyPassword(pass))) {
-      // const { password, ...result } = user;
-      // return result;
-      // Instead, just return user (password is not exposed in login payload)
-      return user;
+      return ExcludeFromObject(user, ['password', 'verificationToken']);
     }
     return null;
   }
