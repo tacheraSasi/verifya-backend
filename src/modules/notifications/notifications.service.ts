@@ -26,24 +26,24 @@ export class NotificationsService {
   private emailApiKey = this.configService.get<string>('emailApiKey');
   private smsApiUrl =
     this.configService.get<string>('smsApiUrl') ||
-    'https://api.notify.africa/v2/send-sms';
+    'https://karibu.briq.tz/v1/message/send-instant';
   private senderId = this.configService.get<string>('senderId');
 
   private readonly logger = new Logger(NotificationsService.name);
 
   async sendSMS({ phoneNumber, message }: SendSmsDto): Promise<void> {
+    console.log('Sending SMS to:', phoneNumber);
     const payload = {
-      sender_id: this.senderId,
-      schedule: 'none',
-      sms: message,
-      recipients: [{ number: Number(phoneNumber) }],
+      content: message,
+      recipients: [phoneNumber],
+      sender_id: this.senderId || '',
     };
     try {
       const response: any = await firstValueFrom(
         this.httpService.post(this.smsApiUrl, payload, {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + this.smsApiKey,
+            'X-API-Key': this.smsApiKey || '',
           },
         }),
       );
@@ -51,6 +51,7 @@ export class NotificationsService {
       this.logger.debug(`Response: ${JSON.stringify(response.data)}`);
     } catch (error) {
       this.logger.error(`Failed to send SMS to ${phoneNumber}:`, error.message);
+      throw error;
     }
   }
 

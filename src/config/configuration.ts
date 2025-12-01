@@ -3,6 +3,7 @@ export default () => ({
   port: parseInt(process.env.PORT ?? '3000', 10),
   jwtSecret: process.env.JWT_SECRET,
   smsApiKey: process.env.SMS_API_KEY,
+  smsApiUrl: process.env.SMS_API_URL || 'https://karibu.briq.tz/v1/message/send-instant',
   emailApiKey: process.env.EMAIL_API_KEY,
   senderId: process.env.SENDER_ID,
   app: {

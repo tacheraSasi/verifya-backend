@@ -122,7 +122,7 @@ export class EmployeesController {
     return this.employeesService.updateForOffice(
       officeId,
       id,
-      updateEmployeeDto as any,
+      updateEmployeeDto,
     );
   }
 

@@ -17,6 +17,10 @@ export const validate = (config: Record<string, unknown>) => {
     DB_DATABASE: Joi.string().required(),
     DB_SYNC: Joi.string().valid('true', 'false').default('false'),
     DB_LOGGING: Joi.string().valid('true', 'false').default('false'),
+    SMS_API_KEY: Joi.string().optional(),
+    SMS_API_URL: Joi.string().uri().optional(),
+    EMAIL_API_KEY: Joi.string().optional(),
+    SENDER_ID: Joi.string().optional(),
   });
 
   const { error, value } = schema.validate(config, {

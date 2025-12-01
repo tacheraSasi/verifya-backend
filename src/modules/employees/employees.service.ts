@@ -358,14 +358,58 @@ export class EmployeesService {
   async updateForOffice(
     officeId: string,
     id: string,
-    updateEmployeeDto: QueryDeepPartialEntity<Employee>,
+    updateEmployeeDto: UpdateEmployeeDto,
   ) {
     const officeIdNum = Number(officeId);
     const employee = await this.entityManager.findOne(Employee, {
       where: { id: Number(id), office: { id: officeIdNum } },
+      relations: ['user'],
     });
     if (!employee) throw new NotFoundException('Employee not found');
-    await this.entityManager.update(Employee, id, updateEmployeeDto);
+
+    // Prepare user update data
+    const userUpdateData: any = {};
+
+    // Combine firstName and lastName into name if provided
+    if (updateEmployeeDto.firstName !== undefined || updateEmployeeDto.lastName !== undefined) {
+      const firstName = updateEmployeeDto.firstName ?? employee.user.name.split(' ')[0] ?? '';
+      const lastName = updateEmployeeDto.lastName ?? employee.user.name.split(' ').slice(1).join(' ') ?? '';
+      userUpdateData.name = `${firstName} ${lastName}`.trim();
+    }
+
+    // Map phone to phoneNumber
+    if (updateEmployeeDto.phone !== undefined) {
+      userUpdateData.phoneNumber = updateEmployeeDto.phone;
+    }
+
+    // Handle email if provided
+    if (updateEmployeeDto.email) {
+      userUpdateData.email = updateEmployeeDto.email;
+    }
+
+    // Handle name from CreateEmployeeDto if provided (takes precedence)
+    if (updateEmployeeDto.name) {
+      userUpdateData.name = updateEmployeeDto.name;
+    }
+
+    // Handle phoneNumber from CreateEmployeeDto if provided (takes precedence)
+    if (updateEmployeeDto.phoneNumber) {
+      userUpdateData.phoneNumber = updateEmployeeDto.phoneNumber;
+    }
+
+    // Update user if there's data to update
+    if (Object.keys(userUpdateData).length > 0) {
+      await this.entityManager.update(User, { id: employee.user.id }, userUpdateData);
+    }
+
+    // Update employee phoneNumber if provided
+    if (updateEmployeeDto.phone !== undefined || updateEmployeeDto.phoneNumber !== undefined) {
+      const phoneNumber = updateEmployeeDto.phone ?? updateEmployeeDto.phoneNumber;
+      await this.entityManager.update(Employee, { id: Number(id) }, {
+        phoneNumber: phoneNumber,
+      });
+    }
+
     return this.findOneByOffice(officeId, id);
   }
 
