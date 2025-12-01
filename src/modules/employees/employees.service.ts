@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
@@ -23,6 +24,8 @@ export class EmployeesService {
     private readonly notificationsService: NotificationsService,
     private readonly jwtService: JwtService,
   ) {}
+
+  private logger = new Logger(EmployeesService.name);
   async inviteEmployee(createEmployeeDto: CreateEmployeeDto) {
     const { name, email, officeId, phoneNumber } = createEmployeeDto;
     // Check if office exists
@@ -62,6 +65,8 @@ export class EmployeesService {
       user,
       userId: user.id,
     });
+    this.logger.log(`Saving OTP entity: ${JSON.stringify(otpEntity)}`);
+    console.log('Saving OTP entity:', otpEntity);
     await this.entityManager.save(otpEntity);
     // Send email and SMS
     const message = `Hi ${name},\n\nYou have been invited to join ${office.name} on ekiliSync!\n\nYour OTP is: ${otpCode}\n\nThis OTP is valid for 10 minutes.\n\nWelcome aboard!`;
@@ -97,6 +102,9 @@ export class EmployeesService {
       user,
       userId: user.id,
     });
+
+    this.logger.log(`Saving OTP entity: ${JSON.stringify(otpEntity)}`);
+    console.log('Saving OTP entity:', otpEntity);
     await this.entityManager.save(otpEntity);
     // Send email and SMS
     const message = `Hi ${user.name},\n\nYou have been re-invited to join ${office.name} on ekiliSync!\n\nYour new OTP is: ${otpCode}\n\nThis OTP is valid for 10 minutes.\n\nWelcome back!`;
@@ -133,7 +141,7 @@ export class EmployeesService {
       throw new BadRequestException('OTP expired');
     // Mark as verified
     user.isVerified = true;
-
+    this.logger.log(`User verified: ${JSON.stringify(user)}`);
     await this.entityManager.save(user);
 
     // Issue JWT

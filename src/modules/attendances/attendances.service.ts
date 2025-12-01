@@ -3,7 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { EntityManager } from 'typeorm';
+import { EntityManager, Between } from 'typeorm';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { AttendanceDto } from './dto/attendance.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
@@ -94,34 +94,54 @@ export class AttendancesService {
     return this.entityManager.delete(Attendance, id);
   }
 
-  async findAllByOffice(officeId: string) {
+  async findAllByOffice(
+    officeId: string,
+    startDate?: string,
+    endDate?: string,
+    limit?: number,
+  ) {
     const officeIdNum = Number(officeId);
+    const where: any = { office: { id: officeIdNum } };
+    if (startDate && endDate) {
+      where.checkinTime = Between(new Date(startDate), new Date(endDate));
+    }
     const attendances = await this.entityManager.find(Attendance, {
-      where: { office: { id: officeIdNum } },
-      relations: ['user', 'office'],
+      where,
+      relations: { user: true, office: true },
+      // take: limit || 100,
     });
-    return attendances.map(saved => ({
-      id: saved.id,
-      user: saved.user
-        ? {
-            id: saved.user.id,
-            name: saved.user.name,
-            email: saved.user.email,
-            userRole: saved.user.userRole,
-          }
-        : {},
-      office: saved.office
-        ? {
-            id: saved.office.id,
-            name: saved.office.name,
-            latitude: saved.office.latitude,
-            longitude: saved.office.longitude,
-          }
-        : {},
-      checkinLatitude: saved.checkinLatitude,
-      checkinLongitude: saved.checkinLongitude,
-      checkinTime: saved.checkinTime,
-    }));
+    const result = await Promise.all(
+      attendances.map(async saved => {
+        const employee = await this.entityManager.findOne(Employee, {
+          where: { user: { id: saved.user?.id } },
+        });
+        return {
+          id: saved.id,
+          employeeId: employee ? employee.id : null,
+          user: saved.user
+            ? {
+                id: saved.user.id,
+                name: saved.user.name,
+                email: saved.user.email,
+                userRole: saved.user.userRole,
+              }
+            : {},
+          office: saved.office
+            ? {
+                id: saved.office.id,
+                name: saved.office.name,
+                latitude: saved.office.latitude,
+                longitude: saved.office.longitude,
+              }
+            : {},
+          checkinLatitude: saved.checkinLatitude,
+          checkinLongitude: saved.checkinLongitude,
+          checkinTime: saved.checkinTime,
+          checkOutTime: saved.checkOutTime,
+        };
+      }),
+    );
+    return result;
   }
 
   async createForOffice(

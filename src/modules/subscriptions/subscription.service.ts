@@ -17,18 +17,18 @@ export class SubscriptionService {
     private planRepository: Repository<SubscriptionPlan>,
   ) {}
 
-  async getActiveSubscription(schoolId: string): Promise<Subscription | null> {
+  async getActiveSubscription(officeId: string): Promise<Subscription | null> {
     return this.subscriptionRepository.findOne({
       where: {
-        schoolId,
+        office: { id: +officeId },
         status: SubscriptionStatus.ACTIVE,
       },
-      relations: ['plan'],
+      relations: ['plan', 'office'],
     });
   }
 
   async createSubscription(
-    schoolId: string,
+    officeId: string,
     planId: string,
     startDate: Date,
     endDate: Date,
@@ -36,19 +36,22 @@ export class SubscriptionService {
     const plan = await this.planRepository.findOne({
       where: { id: +planId },
     });
-
     if (!plan) {
       throw new NotFoundException('Subscription plan not found');
     }
-
+    const office = await this.subscriptionRepository.manager.findOne('Office', {
+      where: { id: +officeId },
+    });
+    if (!office) {
+      throw new NotFoundException('Office not found');
+    }
     const subscription = this.subscriptionRepository.create({
-      schoolId,
+      office,
       plan,
       startDate,
       endDate,
       status: SubscriptionStatus.ACTIVE,
     });
-
     return this.subscriptionRepository.save(subscription);
   }
 
@@ -83,7 +86,6 @@ export class SubscriptionService {
     if (!subscription) {
       return false;
     }
-
     return subscription.plan.features.includes(feature);
   }
 
@@ -93,6 +95,7 @@ export class SubscriptionService {
     employeesCount: number;
   }> {
     logger.log(`Fetching usage for office ID: ${officeId}`);
+    // You should update this to actually count users/admins/employees for the office entity
     return {
       usersCount: 0,
       adminsCount: 0,
@@ -100,11 +103,11 @@ export class SubscriptionService {
     };
   }
 
-  async checkUsageLimits(schoolId: string): Promise<{
+  async checkUsageLimits(officeId: string): Promise<{
     isWithinLimits: boolean;
     exceededLimits: string[];
   }> {
-    const subscription = await this.getActiveSubscription(schoolId);
+    const subscription = await this.getActiveSubscription(officeId);
     if (!subscription) {
       return {
         isWithinLimits: false,
@@ -112,7 +115,7 @@ export class SubscriptionService {
       };
     }
 
-    const usage = await this.getUsage(schoolId);
+    const usage = await this.getUsage(officeId);
     const exceededLimits: string[] = [];
 
     if (usage.adminsCount > subscription.plan.maxAdmins) {

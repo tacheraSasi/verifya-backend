@@ -21,4 +21,7 @@ export class Attendance extends BasicEntity {
 
   @Column()
   checkinTime: Date;
+
+  @Column()
+  checkOutTime: Date;
 }
