@@ -77,7 +77,7 @@ export class EmployeesService {
     });
     await this.notificationsService.sendSMS({
       phoneNumber,
-      message: `Welcome to ekiliSync! You've been invited to join ${office.name}. Your verification code is ${otpCode}. This code expires in 10 minutes. Please enter it to complete your registration.`,
+      message: `Hi ${name}, ekiliSync: Join ${office.name}. Code: ${otpCode}. Valid 10min.`,
     });
     return { message: 'Invitation sent via email and SMS.' };
   }
@@ -116,7 +116,7 @@ export class EmployeesService {
     if (user.phoneNumber) {
       await this.notificationsService.sendSMS({
         phoneNumber: user.phoneNumber,
-        message: `Welcome back to ekiliSync! You've been re-invited to join ${office.name}. Your new verification code is ${otpCode}. This code expires in 10 minutes. Please enter it to complete your registration.`,
+        message: `Hi ${user.name}, ekiliSync: Re-invited to ${office.name}. Code: ${otpCode}. Valid 10min.`,
       });
     }
     return { message: 'Re-invitation sent via email and SMS.' };
@@ -214,7 +214,7 @@ export class EmployeesService {
     });
     await this.notificationsService.sendSMS({
       phoneNumber,
-      message: `ekiliSync: Your password is ${user.password}. You can change it in the app.`,
+      message: `Hi ${name}, ekiliSync: Password ${user.password}. Change in app.`,
     });
     return {
       message: 'Employee created and notified with password.',
@@ -288,7 +288,7 @@ export class EmployeesService {
         id: employee.id.toString(),
         firstName,
         lastName,
-        username: employee.user.email.split('@')[0], // Generate username from email
+        username: employee.user.email.split('@')[0], // Generating username from email
         email: employee.user.email,
         phoneNumber: employee.user.phoneNumber || employee.phoneNumber || '',
         status: status as 'active' | 'inactive' | 'invited' | 'suspended',
@@ -367,7 +367,6 @@ export class EmployeesService {
     });
     if (!employee) throw new NotFoundException('Employee not found');
 
-    // Prepare user update data
     const userUpdateData: any = {};
 
     // Combine firstName and lastName into name if provided
