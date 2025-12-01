@@ -165,4 +165,63 @@ export class SubscriptionService {
     const subscription = await this.findOne(id);
     return this.subscriptionRepository.remove(subscription);
   }
+
+  async findAllPlans() {
+    return this.planRepository.find({
+      where: { isActive: true },
+      order: { price: 'ASC' },
+    });
+  }
+
+  async updateOfficeSubscription(
+    officeId: string,
+    updateDto: UpdateSubscriptionDto,
+  ): Promise<Subscription> {
+    const subscription = await this.getActiveSubscription(officeId);
+    
+    if (!subscription) {
+      // If no active subscription exists, create a new one
+      if (!updateDto.planId) {
+        throw new NotFoundException('Plan ID is required for new subscription');
+      }
+      
+      const plan = await this.planRepository.findOne({
+        where: { id: +updateDto.planId },
+      });
+      
+      if (!plan) {
+        throw new NotFoundException('Subscription plan not found');
+      }
+
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setMonth(endDate.getMonth() + 1); // Default to 1 month
+
+      return this.createSubscription(
+        officeId,
+        updateDto.planId,
+        startDate,
+        endDate,
+      );
+    }
+
+    // Update existing subscription
+    if (updateDto.planId) {
+      const plan = await this.planRepository.findOne({
+        where: { id: +updateDto.planId },
+      });
+      
+      if (!plan) {
+        throw new NotFoundException('Subscription plan not found');
+      }
+      
+      subscription.plan = plan;
+    }
+
+    if (updateDto.status) {
+      subscription.status = updateDto.status;
+    }
+
+    return this.subscriptionRepository.save(subscription);
+  }
 }
