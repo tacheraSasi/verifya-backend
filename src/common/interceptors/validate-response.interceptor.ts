@@ -94,12 +94,22 @@ export class ValidationInterceptor implements NestInterceptor {
   }
 
   private isValidatable(data: any): boolean {
-    return (
-      data &&
-      data.constructor &&
-      data.constructor !== Object &&
-      data.constructor !== Array
-    );
+    if (!data || !data.constructor || data.constructor === Object || data.constructor === Array) {
+      return false;
+    }
+
+    const className = data.constructor.name;
+
+    // Skip validation for TypeORM entities - only validate DTOs
+    // TypeORM entities typically don't end with 'Dto' or 'DTO'
+    // Only validate classes that explicitly end with 'Dto' or 'DTO' (these are DTOs)
+    if (className.endsWith('Dto') || className.endsWith('DTO')) {
+      return true;
+    }
+
+    // Skip validation for all other classes (entities, plain objects, etc.)
+    this.logger.debug(`Skipping validation for non-DTO class: ${className}`);
+    return false;
   }
 
   private formatErrors(errors: ValidationError[]): Record<string, string[]> {
