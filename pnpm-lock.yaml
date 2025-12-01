@@ -59,6 +59,9 @@ importers:
       mysql:
         specifier: ^2.18.1
         version: 2.18.1
+      otpx:
+        specifier: ^0.0.4
+        version: 0.0.4
       passport:
         specifier: ^0.7.0
         version: 0.7.0
@@ -2849,6 +2852,10 @@ packages:
   os-tmpdir@1.0.2:
     resolution: {integrity: sha512-D2FR03Vir7FIu45XBY20mTb+/ZSWB00sjU9jdQXt83gDrI4Ztz5Fs7/yy74g2N5SVQY4xY1qDr4rNddwYRVX0g==}
     engines: {node: '>=0.10.0'}
+
+  otpx@0.0.4:
+    resolution: {integrity: sha512-QUAj2dH8rSQjjrQ7YF0IFjSICxIZ6tKm5gDvMlwl7qFU+F7o5PNOTlgCz8/xNjR3RrqDMtKcUdwvwz8AGLvpvw==}
+    engines: {node: '>=14.0.0'}
 
   p-limit@2.3.0:
     resolution: {integrity: sha512-//88mFWSJx8lxCzwdAABTJL2MyWB12+eIY7MDL2SqLmAkeKU9qxRvWuSyTjm3FUmpBEMuFfckAIqEaVGUDxb6w==}
@@ -7088,6 +7095,8 @@ snapshots:
       wcwidth: 1.0.1
 
   os-tmpdir@1.0.2: {}
+
+  otpx@0.0.4: {}
 
   p-limit@2.3.0:
     dependencies:
