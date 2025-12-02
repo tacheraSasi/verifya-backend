@@ -12,8 +12,8 @@ import { User, UserRole } from 'src/modules/users/entities/user.entity';
 import { Office } from 'src/modules/offices/entities/office.entity';
 import * as crypto from 'crypto';
 import { Employee } from './entities/employee.entity';
-import { Otp } from 'src/modules/auth/entities/otp.entity';
-import { NotificationsService } from '../notifications/notifications.service';
+  import { Otp } from 'src/modules/auth/entities/otp.entity';
+  import { NotificationsService } from '../notifications/services/notifications.service';
 import { JwtService } from '@nestjs/jwt';
 import OTPX from 'otpx';
 

@@ -10,7 +10,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { OfficesService } from 'src/modules/offices/offices.service';
-import { NotificationsService } from 'src/modules/notifications/notifications.service';
+import { NotificationsService } from 'src/modules/notifications/services/notifications.service';
 import { ExcludeFromObject } from 'src/common/dto/sanitize-response.dto';
 
 @Injectable()
@@ -70,6 +70,25 @@ export class AuthService {
       phoneNumber: registerDto.phoneNumber,
       adminEmail: registerDto.adminEmail,
       adminPassword: registerDto.adminPassword,
+    });
+
+    // Send email and SMS
+    const welcomeMessage = `Welcome to ekiliSync ${registerDto.officeName}!
+
+Your office and admin account have been created successfully.
+
+Office Details:
+• Office Name: ${registerDto.officeName}
+• Admin Email: ${registerDto.adminEmail}
+
+You can now log in to your ekiliSync account and start managing your workforce.
+
+Thank you for choosing ekiliSync!`;
+
+    await this.notificationsService.sendEmail({
+      to: registerDto.adminEmail,
+      subject: 'Welcome to ekiliSync - Your Office Has Been Created',
+      message: welcomeMessage,
     });
 
     await this.notificationsService.sendSMS({
