@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
+import { MailService } from './mailer.service';
 
 interface SendSmsDto {
   phoneNumber: string;
@@ -20,6 +21,7 @@ export class NotificationsService {
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly mailService: MailService,
   ) {}
 
   private smsApiKey = this.configService.get<string>('smsApiKey');
@@ -56,28 +58,12 @@ export class NotificationsService {
   }
 
   async sendEmail({ to, subject, message, from }: SendEmailDto): Promise<void> {
-    const payload = {
-      apikey: '',
-      to,
-      subject,
-      message,
-      headers: from ? `From: ${from}` : undefined,
-    };
     try {
-      const response: any = await firstValueFrom(
-        this.httpService.post(
-          'https://relay.ekilie.com/api/index.php',
-          payload,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          },
-        ),
-      );
-      console.log(`Ekilie Relay response [${to}]:`, response.data);
+      await this.mailService.sendMail(to, subject, message);
+      this.logger.log(`Email sent to ${to}: ${subject}`);
     } catch (error) {
       this.logger.error(`Failed to send email to ${to}:`, error.message);
+      throw error;
     }
   }
 }
