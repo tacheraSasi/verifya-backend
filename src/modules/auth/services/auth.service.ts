@@ -39,6 +39,27 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    await this.usersService.setFirstTimeFalse(user.id); 
+    // NOTE:The user obj that i have updated here
+    // is not the same as the one used below
+
+
+    if(user.isFirstTime == false){
+      const loginMessage = `Hello ${user.name},
+
+We noticed a login to your ekiliSync account. If this was you, no further action is needed.
+
+If you did not log in, please reset your password immediately to secure your account.
+
+Thank you,
+The ekiliSync Team`;
+
+      await this.notificationsService.sendEmail({
+        to: user.email,
+        subject: 'New Login Detected on Your ekiliSync Account',
+        message: loginMessage,
+      });
+    }
     
 
     const payload = { email: user.email, sub: user.id, role: user.userRole };
@@ -62,7 +83,6 @@ export class AuthService {
     };
   }
 
-  @Public()
   async register(registerDto: RegisterDto) {
     // Create office and admin user
     await this.officesService.create({
@@ -98,7 +118,6 @@ Thank you for choosing ekiliSync!`;
     return { message: 'Office created successfully' };
   }
 
-  @Public()
   async verifyEmail(token: string): Promise<{ message: string }> {
     const user = await this.usersService.findByVerificationToken(token);
     if (!user) {
