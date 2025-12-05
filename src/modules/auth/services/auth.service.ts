@@ -39,7 +39,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // Removed email verification check
+    
 
     const payload = { email: user.email, sub: user.id, role: user.userRole };
     return {

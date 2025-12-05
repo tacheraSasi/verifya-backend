@@ -61,6 +61,9 @@ export class User {
   @Column({ default: false })
   isVerified: boolean;
 
+  @Column({ default: true })
+  isFirstTime: boolean;
+
   @Column({ nullable: true })
   verificationToken: string;
 

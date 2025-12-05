@@ -21,7 +21,7 @@ export class UsersService {
   constructor(
     private readonly entityManager: EntityManager,
     private readonly logger: LoggerService,
-  ) {}
+  ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { officeId, roleId, ...userData } = createUserDto;
@@ -170,6 +170,21 @@ export class UsersService {
       where: { email: Equal(email) },
       relations: ['office', 'role'],
     });
+  }
+
+  async setFirstTimeFalse(id: string) {
+    try {
+      const user = await this.findById(id);
+      if (!user) {
+        throw new NotFoundException(`User with ID ${id} not found`);
+      }
+      user.isFirstTime = false;
+      await this.entityManager.save(user);
+      return true;
+    } catch (error) {
+      this.logger.error(`Error setting isFirstTime to false for user ID ${id}:`, error);
+      return false;
+    }
   }
 
   async findById(id: string) {
