@@ -38,6 +38,36 @@ export class CreateOfficeDto {
   phoneNumber: string;
 
   @ApiProperty({
+    description: 'Physical address of the office',
+    example: '123 Main St, City, Country',
+    required: false,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @ApiProperty({
+    description: 'Contact email for the office',
+    example: 'office@example.com',
+    required: false,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @ApiProperty({
+    description: 'URL to the office logo image',
+    example: 'https://example.com/logo.png',
+    required: false,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  logoUrl?: string;
+
+  @ApiProperty({
     description: 'Latitude of the office location',
     example: 40.7128,
     required: false,
