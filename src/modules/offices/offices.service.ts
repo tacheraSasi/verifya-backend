@@ -29,6 +29,9 @@ export class OfficesService {
       latitude: createOfficeDto.latitude ?? null,
       longitude: createOfficeDto.longitude ?? null,
       phoneNumber: createOfficeDto.phoneNumber,
+      address: createOfficeDto.address ?? null,
+      email: createOfficeDto.email ?? null,
+      logoUrl: createOfficeDto.logoUrl ?? null,
     });
 
     // Save the office to get an ID
@@ -159,6 +162,14 @@ export class OfficesService {
       office.latitude = updateOfficeDto.latitude;
     if (updateOfficeDto.longitude !== undefined)
       office.longitude = updateOfficeDto.longitude;
+    if (updateOfficeDto.phoneNumber !== undefined)
+      office.phoneNumber = updateOfficeDto.phoneNumber;
+    if (updateOfficeDto.address !== undefined)
+      office.address = updateOfficeDto.address ?? null;
+    if (updateOfficeDto.email !== undefined)
+      office.email = updateOfficeDto.email ?? null;
+    if (updateOfficeDto.logoUrl !== undefined)
+      office.logoUrl = updateOfficeDto.logoUrl ?? null;
 
     await this.entityManager.save(office);
     return await this.findOne(id);

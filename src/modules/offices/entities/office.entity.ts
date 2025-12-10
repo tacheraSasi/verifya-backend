@@ -17,6 +17,15 @@ export class Office extends BasicEntity {
   @Column({ nullable: false })
   phoneNumber: string;
 
+  @Column({ nullable: true })
+  address?: string | null;
+
+  @Column({ nullable: true })
+  email?: string | null;
+
+  @Column({ nullable: true })
+  logoUrl?: string | null;
+
   @OneToOne(() => User, { eager: true })
   @JoinColumn()
   admin: User;
