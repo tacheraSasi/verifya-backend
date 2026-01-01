@@ -63,6 +63,11 @@ export class OfficesController {
     return await this.officesService.count(officeId);
   }
 
+  @Get('coords/:id')
+  getCoords(@Param('id') officeId: string): Promise<{ latitude: number; longitude: number }> {
+    return this.officesService.getCoords(officeId);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get an office by ID' })
   @ApiResponse({

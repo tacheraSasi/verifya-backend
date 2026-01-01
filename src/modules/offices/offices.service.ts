@@ -132,6 +132,11 @@ export class OfficesService {
     };
   }
 
+  async getCoords(officeId: string): Promise<{ latitude: number; longitude: number }> {
+    const office = await this.findOne(officeId);
+    return { latitude: office.latitude ?? 0, longitude: office.longitude ?? 0 }; //TODO: i will fix this but we not have coord with val 0
+  }
+
   async findOne(id: string): Promise<Office> {
     const office = await this.entityManager.findOneBy(Office, {
       id: id as any,
