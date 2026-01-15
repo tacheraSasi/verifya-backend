@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   Logger,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
@@ -11,8 +12,8 @@ import { User, UserRole } from 'src/modules/users/entities/user.entity';
 import { Office } from 'src/modules/offices/entities/office.entity';
 import * as crypto from 'crypto';
 import { Employee } from './entities/employee.entity';
-  import { Otp } from 'src/modules/auth/entities/otp.entity';
-  import { NotificationsService } from '../notifications/services/notifications.service';
+import { Otp } from 'src/modules/auth/entities/otp.entity';
+import { NotificationsService } from '../notifications/services/notifications.service';
 import { JwtService } from '@nestjs/jwt';
 import OTPX from 'otpx';
 
@@ -26,66 +27,71 @@ export class EmployeesService {
 
   private logger = new Logger(EmployeesService.name);
   async inviteEmployee(createEmployeeDto: CreateEmployeeDto) {
-    const { name, email, officeId, phoneNumber } = createEmployeeDto;
-    
-    // Check if office exists
-    const office = await this.entityManager.findOneBy(Office, {
-      id: Equal(typeof officeId === 'string' ? Number(officeId) : officeId),
-    });
-    if (!office) throw new NotFoundException('Office not found');
-    
-    // Check if email is already in use
-    const existingUser = await this.entityManager.findOneBy(User, {
-      email: Equal(email), //TODO:Fix this logic here what if user exists in more than one office
-    });
-    if (existingUser) throw new BadRequestException('Email already in use');
-    
-    // Generate OTP
-    const otpCode = this.generateOtp();
-    const otpExpires = new Date(Date.now() + 1000 * 60 * 10); // 10 min
-    
-    // Create user (not verified)
-    const user = this.entityManager.create(User, {
-      name,
-      email,
-      userRole: UserRole.EMPLOYEE,
-      office,
-      isVerified: false,
-      phoneNumber,
-    });
-    await this.entityManager.save(user);
-    
-    // Create employee
-    const employee = this.entityManager.create(Employee, {
-      user,
-      office,
-      phoneNumber,
-    });
-    await this.entityManager.save(employee);
-    
-    // Save OTP entity
-    const otpEntity = this.entityManager.create(Otp, {
-      code: otpCode,
-      expiresAt: otpExpires,
-      user,
-      userId: user.id,
-    });
-    this.logger.log(`Saving OTP entity: ${JSON.stringify(otpEntity)}`);
-    console.log('Saving OTP entity:', otpEntity);
-    await this.entityManager.save(otpEntity);
-    
-    // Send email and SMS
-    const message = `Hi ${name},\n\nYou have been invited to join ${office.name} on ekiliSync!\n\nYour OTP is: ${otpCode}\n\nThis OTP is valid for 10 minutes.\n\nWelcome aboard!`;
-    await this.notificationsService.sendEmail({
-      to: email,
-      subject: 'You are invited to ekiliSync',
-      message,
-    });
-    await this.notificationsService.sendSMS({
-      phoneNumber,
-      message: `Hi ${name}, ekiliSync: Join ${office.name}. Code: ${otpCode}. Valid 10min.`,
-    });
-    return { message: 'Invitation sent via email and SMS.' };
+    try {
+      const { name, email, officeId, phoneNumber } = createEmployeeDto;
+
+      // Check if office exists
+      const office = await this.entityManager.findOneBy(Office, {
+        id: Equal(typeof officeId === 'string' ? Number(officeId) : officeId),
+      });
+      if (!office) throw new NotFoundException('Office not found');
+
+      // Check if email is already in use
+      const existingUser = await this.entityManager.findOneBy(User, {
+        email: Equal(email), //TODO:Fix this logic here what if user exists in more than one office
+      });
+      if (existingUser) throw new BadRequestException('Email already in use');
+
+      // Generate OTP
+      const otpCode = this.generateOtp();
+      const otpExpires = new Date(Date.now() + 1000 * 60 * 10); // 10 min
+
+      // Create user (not verified)
+      const user = this.entityManager.create(User, {
+        name,
+        email,
+        userRole: UserRole.EMPLOYEE,
+        office,
+        isVerified: false,
+        phoneNumber,
+      });
+      await this.entityManager.save(user);
+
+      // Create employee
+      const employee = this.entityManager.create(Employee, {
+        user,
+        office,
+        phoneNumber,
+      });
+      await this.entityManager.save(employee);
+
+      // Save OTP entity
+      const otpEntity = this.entityManager.create(Otp, {
+        code: otpCode,
+        expiresAt: otpExpires,
+        user,
+        userId: user.id,
+      });
+      this.logger.log(`Saving OTP entity: ${JSON.stringify(otpEntity)}`);
+      console.log('Saving OTP entity:', otpEntity);
+      await this.entityManager.save(otpEntity);
+
+      // Send email and SMS
+      const message = `Hi ${name},\n\nYou have been invited to join ${office.name} on ekiliSync!\n\nYour OTP is: ${otpCode}\n\nThis OTP is valid for 10 minutes.\n\nWelcome aboard!`;
+      await this.notificationsService.sendEmail({
+        to: email,
+        subject: 'You are invited to ekiliSync',
+        message,
+      });
+      await this.notificationsService.sendSMS({
+        phoneNumber,
+        message: `Hi ${name}, ekiliSync: Join ${office.name}. Code: ${otpCode}. Valid 10min.`,
+      });
+      return { message: 'Invitation sent via email and SMS.' };
+    } catch (error) {
+      console.error('Error sending invitation:', error);
+      throw new InternalServerErrorException('Failed to send invitation');
+    }
   }
 
   async reInviteEmployee(id: string) {
@@ -112,7 +118,7 @@ export class EmployeesService {
     this.logger.log(`Saving OTP entity: ${JSON.stringify(otpEntity)}`);
     console.log('Saving OTP entity:', otpEntity);
     await this.entityManager.save(otpEntity);
-    
+
     // Send email and SMS
     const message = `Hi ${user.name},\n\nYou have been re-invited to join ${office.name} on ekiliSync!\n\nYour new OTP is: ${otpCode}\n\nThis OTP is valid for 10 minutes.\n\nWelcome back!`;
     await this.notificationsService.sendEmail({
@@ -130,7 +136,6 @@ export class EmployeesService {
   }
 
   async verifyOtp(email: string, otp: string) {
-    
     // Find user by email
     const user = await this.entityManager.findOne(User, {
       where: { email },
@@ -147,7 +152,7 @@ export class EmployeesService {
     if (!otpEntity) throw new BadRequestException('Invalid OTP');
     if (!otpEntity.expiresAt || otpEntity.expiresAt < new Date())
       throw new BadRequestException('OTP expired');
-    
+
     // Mark as verified
     user.isVerified = true;
     this.logger.log(`User verified: ${JSON.stringify(user)}`);
@@ -186,19 +191,19 @@ export class EmployeesService {
 
   async create(createEmployeeDto: CreateEmployeeDto) {
     const { name, email, officeId, phoneNumber } = createEmployeeDto;
-    
+
     // Check if office exists
     const office = await this.entityManager.findOneBy(Office, {
       id: Equal(+officeId),
     });
     if (!office) throw new NotFoundException('Office not found');
-    
+
     // Check if email is already in use
     const existingUser = await this.entityManager.findOneBy(User, {
       email: Equal(email),
     });
     if (existingUser) throw new BadRequestException('Email already in use');
-    
+
     // Create user with password
     const user = this.entityManager.create(User, {
       name,
@@ -210,7 +215,7 @@ export class EmployeesService {
       password: this.generateRandomPassword(),
     });
     await this.entityManager.save(user);
-    
+
     // Create Employee entity
     const employee = this.entityManager.create(Employee, {
       user,
@@ -218,7 +223,7 @@ export class EmployeesService {
       phoneNumber,
     });
     await this.entityManager.save(employee);
-    
+
     // Send email and SMS with password
     const passwordMsg = `Hi ${name},\n\nYour account for ekiliSync has been created.\n\nThis is your password: ${user.password}\n\nYou can change it in the ekiliSync app.`;
     await this.notificationsService.sendEmail({
@@ -384,9 +389,16 @@ export class EmployeesService {
     const userUpdateData: any = {};
 
     // Combine firstName and lastName into name if provided
-    if (updateEmployeeDto.firstName !== undefined || updateEmployeeDto.lastName !== undefined) {
-      const firstName = updateEmployeeDto.firstName ?? employee.user.name.split(' ')[0] ?? '';
-      const lastName = updateEmployeeDto.lastName ?? employee.user.name.split(' ').slice(1).join(' ') ?? '';
+    if (
+      updateEmployeeDto.firstName !== undefined ||
+      updateEmployeeDto.lastName !== undefined
+    ) {
+      const firstName =
+        updateEmployeeDto.firstName ?? employee.user.name.split(' ')[0] ?? '';
+      const lastName =
+        updateEmployeeDto.lastName ??
+        employee.user.name.split(' ').slice(1).join(' ') ??
+        '';
       userUpdateData.name = `${firstName} ${lastName}`.trim();
     }
 
@@ -412,15 +424,27 @@ export class EmployeesService {
 
     // Update user if there's data to update
     if (Object.keys(userUpdateData).length > 0) {
-      await this.entityManager.update(User, { id: employee.user.id }, userUpdateData);
+      await this.entityManager.update(
+        User,
+        { id: employee.user.id },
+        userUpdateData,
+      );
     }
 
     // Update employee phoneNumber if provided
-    if (updateEmployeeDto.phone !== undefined || updateEmployeeDto.phoneNumber !== undefined) {
-      const phoneNumber = updateEmployeeDto.phone ?? updateEmployeeDto.phoneNumber;
-      await this.entityManager.update(Employee, { id: Number(id) }, {
-        phoneNumber: phoneNumber,
-      });
+    if (
+      updateEmployeeDto.phone !== undefined ||
+      updateEmployeeDto.phoneNumber !== undefined
+    ) {
+      const phoneNumber =
+        updateEmployeeDto.phone ?? updateEmployeeDto.phoneNumber;
+      await this.entityManager.update(
+        Employee,
+        { id: Number(id) },
+        {
+          phoneNumber: phoneNumber,
+        },
+      );
     }
 
     return this.findOneByOffice(officeId, id);
