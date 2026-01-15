@@ -83,6 +83,7 @@ export class EmployeesService {
         subject: 'You are invited to ekiliSync',
         message,
       });
+      //FIXME: i will fix this if this fails is should not make the whole process fail
       await this.notificationsService.sendSMS({
         phoneNumber,
         message: `Hi ${name}, ekiliSync: Join ${office.name}. Code: ${otpCode}. Valid 10min.`,

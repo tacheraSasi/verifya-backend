@@ -137,6 +137,8 @@ export class EmployeesController {
     @Param('id') id: string,
   ) {
     return this.employeesService.removeForOffice(officeId, id);
+    //FIXME: Should i also delete the user entity?
+    // I will rethink this later in the future
   }
 
   @Get(':id')
