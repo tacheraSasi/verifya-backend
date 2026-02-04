@@ -15,7 +15,7 @@ import { Employee } from 'src/modules/employees/entities/employee.entity';
 
 @Injectable()
 export class AttendancesService {
-  constructor(private readonly entityManager: EntityManager) {}
+  constructor(private readonly entityManager: EntityManager) { }
 
   async create(createAttendanceDto: CreateAttendanceDto) {
     const { userId, officeId, latitude, longitude } = createAttendanceDto;
@@ -52,19 +52,19 @@ export class AttendancesService {
       id: saved.id,
       user: saved.user
         ? {
-            id: saved.user.id,
-            name: saved.user.name,
-            email: saved.user.email,
-            userRole: saved.user.userRole,
-          }
+          id: saved.user.id,
+          name: saved.user.name,
+          email: saved.user.email,
+          userRole: saved.user.userRole,
+        }
         : {},
       office: saved.office
         ? {
-            id: saved.office.id,
-            name: saved.office.name,
-            latitude: saved.office.latitude,
-            longitude: saved.office.longitude,
-          }
+          id: saved.office.id,
+          name: saved.office.name,
+          latitude: saved.office.latitude,
+          longitude: saved.office.longitude,
+        }
         : {},
       checkinLatitude: saved.checkinLatitude,
       checkinLongitude: saved.checkinLongitude,
@@ -84,10 +84,72 @@ export class AttendancesService {
   }
 
   async update(id: string, updateAttendanceDto: UpdateAttendanceDto) {
-    const attendance = await this.findOne(id);
+    const attendance = await this.entityManager.findOne(Attendance, {
+      where: { id: +id },
+      relations: ['user', 'office'],
+    });
     if (!attendance) throw new NotFoundException('Attendance not found');
-    Object.assign(attendance, updateAttendanceDto);
-    return this.entityManager.save(attendance);
+
+    // If this is a checkout, validate location
+    if (
+      updateAttendanceDto.checkoutLatitude != null &&
+      updateAttendanceDto.checkoutLongitude != null
+    ) {
+      const office = attendance.office;
+      if (
+        office.latitude == null ||
+        office.longitude == null ||
+        !isWithinDistance(
+          updateAttendanceDto.checkoutLatitude,
+          updateAttendanceDto.checkoutLongitude,
+          office.latitude,
+          office.longitude,
+        )
+      ) {
+        throw new BadRequestException(
+          'You are not within the allowed range to check out.',
+        );
+      }
+
+      // Set checkout time if not provided
+      if (!updateAttendanceDto.checkOutTime) {
+        attendance.checkOutTime = new Date();
+      } else {
+        attendance.checkOutTime = new Date(updateAttendanceDto.checkOutTime);
+      }
+      attendance.checkoutLatitude = updateAttendanceDto.checkoutLatitude;
+      attendance.checkoutLongitude = updateAttendanceDto.checkoutLongitude;
+    } else {
+      Object.assign(attendance, updateAttendanceDto);
+    }
+
+    const saved = await this.entityManager.save(attendance);
+
+    return {
+      id: saved.id,
+      user: saved.user
+        ? {
+          id: saved.user.id,
+          name: saved.user.name,
+          email: saved.user.email,
+          userRole: saved.user.userRole,
+        }
+        : {},
+      office: saved.office
+        ? {
+          id: saved.office.id,
+          name: saved.office.name,
+          latitude: saved.office.latitude,
+          longitude: saved.office.longitude,
+        }
+        : {},
+      checkinLatitude: saved.checkinLatitude,
+      checkinLongitude: saved.checkinLongitude,
+      checkinTime: saved.checkinTime,
+      checkOutTime: saved.checkOutTime,
+      checkoutLatitude: saved.checkoutLatitude,
+      checkoutLongitude: saved.checkoutLongitude,
+    };
   }
 
   async remove(id: string) {
@@ -120,24 +182,26 @@ export class AttendancesService {
           employeeId: employee ? employee.id : null,
           user: saved.user
             ? {
-                id: saved.user.id,
-                name: saved.user.name,
-                email: saved.user.email,
-                userRole: saved.user.userRole,
-              }
+              id: saved.user.id,
+              name: saved.user.name,
+              email: saved.user.email,
+              userRole: saved.user.userRole,
+            }
             : {},
           office: saved.office
             ? {
-                id: saved.office.id,
-                name: saved.office.name,
-                latitude: saved.office.latitude,
-                longitude: saved.office.longitude,
-              }
+              id: saved.office.id,
+              name: saved.office.name,
+              latitude: saved.office.latitude,
+              longitude: saved.office.longitude,
+            }
             : {},
           checkinLatitude: saved.checkinLatitude,
           checkinLongitude: saved.checkinLongitude,
           checkinTime: saved.checkinTime,
           checkOutTime: saved.checkOutTime,
+          checkoutLatitude: saved.checkoutLatitude,
+          checkoutLongitude: saved.checkoutLongitude,
         };
       }),
     );

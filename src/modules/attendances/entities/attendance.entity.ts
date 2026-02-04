@@ -22,6 +22,12 @@ export class Attendance extends BasicEntity {
   @Column()
   checkinTime: Date;
 
-  @Column()
+  @Column({ nullable: true })
   checkOutTime: Date;
+
+  @Column('decimal', { precision: 10, scale: 7, nullable: true })
+  checkoutLatitude: number;
+
+  @Column('decimal', { precision: 10, scale: 7, nullable: true })
+  checkoutLongitude: number;
 }
