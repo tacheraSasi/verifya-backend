@@ -25,7 +25,7 @@ import { Public } from 'src/modules/auth/decorator/public.decorator';
 @ApiBearerAuth('JWT')
 @Controller('employees')
 export class EmployeesController {
-  constructor(private readonly employeesService: EmployeesService) {}
+  constructor(private readonly employeesService: EmployeesService) { }
 
   @Post('invite')
   @ApiOperation({ summary: 'Invite a new employee (admin only)' })
@@ -43,6 +43,17 @@ export class EmployeesController {
   @ApiOperation({ summary: 'Re-invite an employee (admin only)' })
   reInvite(@Param('id') id: string) {
     return this.employeesService.reInviteEmployee(id);
+  }
+
+  @Public()
+  @Post('resend-invitation')
+  @ApiOperation({ summary: 'Resend OTP to an employee by email' })
+  @ApiBody({ schema: { type: 'object', properties: { email: { type: 'string' } }, required: ['email'] } })
+  @ApiResponse({ status: 200, description: 'OTP resent successfully' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 400, description: 'User already verified' })
+  resendInvitation(@Body('email') email: string) {
+    return this.employeesService.resendOtpByEmail(email);
   }
 
   @Get()
@@ -137,7 +148,7 @@ export class EmployeesController {
     @Param('id') id: string,
   ) {
     return this.employeesService.removeForOffice(officeId, id);
-    //FIXME: Should i also delete the user entity?
+    //FIXME: Should i also delete the user entity
     // I will rethink this later in the future
   }
 

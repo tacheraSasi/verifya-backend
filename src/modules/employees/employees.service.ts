@@ -23,7 +23,7 @@ export class EmployeesService {
     private readonly entityManager: EntityManager,
     private readonly notificationsService: NotificationsService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   private logger = new Logger(EmployeesService.name);
   async inviteEmployee(createEmployeeDto: CreateEmployeeDto) {
@@ -136,6 +136,47 @@ export class EmployeesService {
     return { message: 'Re-invitation sent via email and SMS.' };
   }
 
+  async resendOtpByEmail(email: string) {
+    const user = await this.entityManager.findOne(User, {
+      where: { email },
+      relations: ['office'],
+    });
+    if (!user) throw new NotFoundException('User not found');
+    if (user.isVerified) {
+      throw new BadRequestException('User is already verified');
+    }
+
+    const office = user.office;
+    if (!office) throw new NotFoundException('User has no associated office');
+
+    const otpCode = this.generateOtp();
+    const otpExpires = new Date(Date.now() + 1000 * 60 * 10); // 10 min
+    const otpEntity = this.entityManager.create(Otp, {
+      code: otpCode,
+      expiresAt: otpExpires,
+      user,
+      userId: user.id,
+    });
+
+    this.logger.log(`Saving OTP entity for resend: ${JSON.stringify(otpEntity)}`);
+    await this.entityManager.save(otpEntity);
+
+    // Send email and SMS
+    const message = `Hi ${user.name},\n\nHere is your new OTP for ${office.name} on ekiliSync!\n\nYour OTP is: ${otpCode}\n\nThis OTP is valid for 10 minutes.`;
+    await this.notificationsService.sendEmail({
+      to: user.email,
+      subject: 'Your new ekiliSync OTP',
+      message,
+    });
+    if (user.phoneNumber) {
+      await this.notificationsService.sendSMS({
+        phoneNumber: user.phoneNumber,
+        message: `Hi ${user.name}, ekiliSync: Your new OTP is ${otpCode}. Valid 10min.`,
+      });
+    }
+    return { message: 'New OTP sent via email and SMS.' };
+  }
+
   async verifyOtp(email: string, otp: string) {
     // Find user by email
     const user = await this.entityManager.findOne(User, {
@@ -175,12 +216,12 @@ export class EmployeesService {
         role: user.userRole,
         office: user.office
           ? {
-              id: user.office.id,
-              name: user.office.name,
-              latitude: user.office.latitude,
-              longitude: user.office.longitude,
-              createdAt: user.office.createdAt,
-            }
+            id: user.office.id,
+            name: user.office.name,
+            latitude: user.office.latitude,
+            longitude: user.office.longitude,
+            createdAt: user.office.createdAt,
+          }
           : null,
       },
     };
