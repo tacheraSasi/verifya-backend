@@ -37,7 +37,7 @@ export function calculateDistance(
  * @param userLon User's current longitude
  * @param officeLat Office's latitude
  * @param officeLon Office's longitude
- * @param maxDistance Maximum allowed distance in meters (default: 50)
+ * @param maxDistance Maximum allowed distance in meters (default: 100)
  * @returns Boolean indicating whether the user is within the allowed distance
  */
 export function isWithinDistance(
@@ -45,7 +45,7 @@ export function isWithinDistance(
   userLon: number,
   officeLat: number,
   officeLon: number,
-  maxDistance: number = 50,
+  maxDistance: number = 100,
 ): boolean {
   const distance = calculateDistance(userLat, userLon, officeLat, officeLon);
   return distance <= maxDistance;
