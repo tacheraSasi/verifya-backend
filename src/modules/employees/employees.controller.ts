@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { EmployeesService } from './employees.service';
 import { CreateEmployeeDto, VerifyOtpDto } from './dto/create-employee.dto';
@@ -20,6 +21,8 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { Public } from 'src/modules/auth/decorator/public.decorator';
+import { Roles } from 'src/modules/auth/decorator/auth-user.decorator';
+import { RolesGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Employees')
 @ApiBearerAuth('JWT')
@@ -28,13 +31,15 @@ export class EmployeesController {
   constructor(private readonly employeesService: EmployeesService) { }
 
   @Post('invite')
+  @Roles('admin')
+  @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Invite a new employee (admin only)' })
   @ApiBody({ type: CreateEmployeeDto })
   @ApiResponse({ status: 201, description: 'Employee invited successfully' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   invite(
     @Body() createEmployeeDto: CreateEmployeeDto,
-    // @AuthUser() authUser: IAuthUser,
   ) {
     return this.employeesService.inviteEmployee(createEmployeeDto);
   }

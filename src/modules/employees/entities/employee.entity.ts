@@ -1,4 +1,4 @@
-import { Entity, OneToOne, JoinColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, OneToOne, JoinColumn, ManyToOne } from 'typeorm';
 import { User } from 'src/modules/users/entities/user.entity';
 import { Office } from 'src/modules/offices/entities/office.entity';
 import { BasicEntity } from 'src/common/entities/base.entity';
@@ -12,6 +12,6 @@ export class Employee extends BasicEntity {
   @ManyToOne(() => Office, office => office.users)
   office: Office;
 
-  // Phone number for invitation
+  @Column({ length: 100, nullable: true })
   phoneNumber: string;
 }

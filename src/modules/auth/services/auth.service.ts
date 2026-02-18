@@ -39,12 +39,25 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    await this.usersService.setFirstTimeFalse(user.id); 
-    // NOTE:The user obj that i have updated here
-    // is not the same as the one used below
+    const wasFirstTime = user.isFirstTime;
+    await this.usersService.setFirstTimeFalse(user.id);
 
+    if (wasFirstTime) {
+      const welcomeMessage = `Hello ${user.name},
 
-    if(user.isFirstTime == false){
+Welcome to ekiliSync! Your account is now active.
+
+If you have any questions, feel free to reach out to our support team.
+
+Thank you,
+The ekiliSync Team`;
+
+      await this.notificationsService.sendEmail({
+        to: user.email,
+        subject: 'Welcome to ekiliSync',
+        message: welcomeMessage,
+      });
+    } else {
       const loginMessage = `Hello ${user.name},
 
 We noticed a login to your ekiliSync account. If this was you, no further action is needed.
@@ -60,7 +73,6 @@ The ekiliSync Team`;
         message: loginMessage,
       });
     }
-    
 
     const payload = { email: user.email, sub: user.id, role: user.userRole };
     return {

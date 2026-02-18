@@ -94,7 +94,11 @@ export class EmployeesService {
       }
       return { message: 'Invitation sent via email and SMS.' };
     } catch (error) {
-      console.error('Error sending invitation:', error);
+      // Re-throw known HTTP exceptions (NotFoundException, BadRequestException, etc.)
+      if (error instanceof NotFoundException || error instanceof BadRequestException) {
+        throw error;
+      }
+      this.logger.error('Error sending invitation:', error);
       throw new InternalServerErrorException('Failed to send invitation');
     }
   }
@@ -199,10 +203,32 @@ export class EmployeesService {
     if (!otpEntity.expiresAt || otpEntity.expiresAt < new Date())
       throw new BadRequestException('OTP expired');
 
-    // Mark as verified
+    // Invalidate the used OTP so it cannot be reused
+    await this.entityManager.remove(otpEntity);
+
+    // Generate a temporary password so the user can log in via /auth/login
+    const tempPassword = this.generateRandomPassword();
+    user.password = tempPassword;
     user.isVerified = true;
-    this.logger.log(`User verified: ${JSON.stringify(user)}`);
+    this.logger.log(`User verified: ${user.id}`);
     await this.entityManager.save(user);
+
+    // Notify the user of their temporary password
+    await this.notificationsService.sendEmail({
+      to: user.email,
+      subject: 'Your ekiliSync Account is Verified',
+      message: `Hi ${user.name},\n\nYour account has been verified successfully!\n\nYour temporary password is: ${tempPassword}\n\nPlease change it after your first login.\n\nThank you,\nThe ekiliSync Team`,
+    });
+    if (user.phoneNumber) {
+      try {
+        await this.notificationsService.sendSMS({
+          phoneNumber: user.phoneNumber,
+          message: `Hi ${user.name}, ekiliSync: Account verified. Temp password: ${tempPassword}. Please change it after login.`,
+        });
+      } catch (smsError) {
+        this.logger.warn(`SMS notification failed for ${user.phoneNumber}: ${smsError.message}`);
+      }
+    }
 
     // Issue JWT
     const payload = {
@@ -232,7 +258,7 @@ export class EmployeesService {
   }
 
   private generateOtp(): string {
-    return OTPX.numeric(4);
+    return OTPX.numeric(6);
   }
 
   async create(createEmployeeDto: CreateEmployeeDto) {
