@@ -18,9 +18,9 @@ export class AttendancesService {
   constructor(private readonly entityManager: EntityManager) { }
 
   async create(createAttendanceDto: CreateAttendanceDto) {
-    const { userId, officeId, latitude, longitude } = createAttendanceDto;
+    const { employeeId, officeId, latitude, longitude } = createAttendanceDto;
     const employee = await this.entityManager.findOne(Employee, {
-      where: { id: Number(userId) },
+      where: { id: Number(employeeId) },
       relations: ['user'],
     });
     if (!employee) throw new NotFoundException('Employee not found');
@@ -213,13 +213,36 @@ export class AttendancesService {
     createAttendanceDto: CreateAttendanceDto,
   ) {
     const officeIdNum = Number(officeId);
+    const { employeeId, latitude, longitude } = createAttendanceDto;
+
+    const employee = await this.entityManager.findOne(Employee, {
+      where: { id: Number(employeeId) },
+      relations: ['user'],
+    });
+    if (!employee) throw new NotFoundException('Employee not found');
+
     const office = await this.entityManager.findOne(Office, {
       where: { id: officeIdNum },
     });
     if (!office) throw new NotFoundException('Office not found');
+
+    // Enforce geofence validation
+    if (
+      office.latitude == null ||
+      office.longitude == null ||
+      !isWithinDistance(latitude, longitude, office.latitude, office.longitude)
+    ) {
+      throw new BadRequestException(
+        'You are not within the allowed range to mark attendance.',
+      );
+    }
+
     const attendance = this.entityManager.create(Attendance, {
-      ...createAttendanceDto,
+      user: employee.user,
       office,
+      checkinLatitude: latitude,
+      checkinLongitude: longitude,
+      checkinTime: new Date(),
     });
     return this.entityManager.save(attendance);
   }
@@ -240,8 +263,30 @@ export class AttendancesService {
     const officeIdNum = Number(officeId);
     const attendance = await this.entityManager.findOne(Attendance, {
       where: { id: +id, office: { id: officeIdNum } },
+      relations: ['office'],
     });
     if (!attendance) throw new NotFoundException('Attendance not found');
+
+    // If this is a checkout, validate geofence
+    const dto = updateAttendanceDto as any;
+    if (dto.checkoutLatitude != null && dto.checkoutLongitude != null) {
+      const office = attendance.office;
+      if (
+        office.latitude == null ||
+        office.longitude == null ||
+        !isWithinDistance(
+          dto.checkoutLatitude,
+          dto.checkoutLongitude,
+          office.latitude,
+          office.longitude,
+        )
+      ) {
+        throw new BadRequestException(
+          'You are not within the allowed range to check out.',
+        );
+      }
+    }
+
     await this.entityManager.update(Attendance, id, updateAttendanceDto);
     return this.findOneByOffice(officeId, id);
   }
