@@ -25,7 +25,7 @@ import { RolesGuard } from '../auth/guards/jwt-auth.guard';
 @ApiBearerAuth('JWT')
 @Controller('offices')
 export class OfficesController {
-  constructor(private readonly officesService: OfficesService) {}
+  constructor(private readonly officesService: OfficesService) { }
 
   @Post()
   @Roles('admin')

@@ -22,7 +22,7 @@ export class AuthService {
     private refreshTokenRepository: Repository<RefreshToken>,
     private officesService: OfficesService,
     private notificationsService: NotificationsService,
-  ) {}
+  ) { }
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
@@ -84,12 +84,12 @@ The ekiliSync Team`;
         role: user.userRole,
         office: user.office
           ? {
-              id: user.office.id,
-              name: user.office.name,
-              latitude: user.office.latitude,
-              longitude: user.office.longitude,
-              createdAt: user.office.createdAt,
-            }
+            id: user.office.id,
+            name: user.office.name,
+            latitude: user.office.latitude,
+            longitude: user.office.longitude,
+            createdAt: user.office.createdAt,
+          }
           : null,
       },
     };

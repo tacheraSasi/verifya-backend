@@ -43,4 +43,4 @@ import { NotificationsModule } from 'src/modules/notifications/notifications.mod
   controllers: [AuthController],
   exports: [JwtModule],
 })
-export class AuthModule {}
+export class AuthModule { }
